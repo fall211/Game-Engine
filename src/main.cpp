@@ -19,20 +19,16 @@ int main()
             if (event.type == sf::Event::Closed) window.close();
 
             if (event.type == sf::Event::KeyPressed) {
-                std::string msg = "Key pressed: ";
+
                 switch(event.key.scancode){
                     case sf::Keyboard::Scan::Escape:
-                        msg += "esc";
                         break;
                     case sf::Keyboard::Scan::Space:
-                        msg += "space";
                         engine.sEntityCreator();
                         break;
                     default:
-                        msg += "other";
                         break;
                 }
-                debug(msg);
             }
             if (event.type == sf::Event::MouseButtonPressed){
                 if (event.mouseButton.button == sf::Mouse::Left){
