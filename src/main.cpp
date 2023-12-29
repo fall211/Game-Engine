@@ -3,9 +3,6 @@
 #include <SFML/Graphics.hpp>
 
 #include "Engine.h"
-#include "EntityManager.h"
-#include "Entity.h"
-#include "Component.h"
 
 
 void debug(std::string& message);
