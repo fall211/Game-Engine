@@ -17,6 +17,15 @@ CLifetime::CLifetime(float lifetimein) : lifetime(lifetimein) {
     Component();
 }
 
-CBBox::CBBox(float w, float h) : w(w), h(h) { Component(); }
+// Bounding shape components
+CBBox::CBBox(float w, float h) : width(w), height(h) { Component(); }
+CBCircle::CBCircle(float r) : radius(r) { Component(); }
 
-CBCircle(float r) : radius(r) { Component() };
+
+// Components for Bomberman
+CHealth::CHealth(int h) : h(h) { Component(); }
+CBlastRadius::CBlastRadius(float b) : br(b) { Component(); }
+CInventory::CInventory(std::vector<int> i) : inv(i) { Component(); }
+CDamage::CDamage(float d) : dmg(d) { Component(); }
+CBuff::CBuff(int d) : buffId(d) { Component(); }
+

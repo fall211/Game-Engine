@@ -17,11 +17,13 @@ public:
     const size_t getCurrentFrame();
     void sMovement(EntityList& entities);
     void sEntityCreator();
-    void sRender(EntityList& entities);
     void sLifetime(EntityList& entities);
     void sCollisionHandler(EntityList& entities);
-    bool isBBoxCollision(Entity& e0, Entity& e1);
-    bool isBCircleCollision(Entity& e0, Entity& e1);
+    void sResolveCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entity> e1);
+    bool isBBoxCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entity> e1);
+    //bool isBCircleCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entity> e1);
+    void sRender(EntityList& entities);
+    
 };
 
 #endif // ENGINE_H

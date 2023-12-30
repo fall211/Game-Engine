@@ -40,9 +40,9 @@ class CLifetime : public Component {
 
 class CBBox : public Component {
     public:
-        float w;
-        float h;
-        CBBox(float w, float w);
+        float width;
+        float height;
+        CBBox(float w, float h);
 };
 
 class CBCircle : public Component {
@@ -50,5 +50,42 @@ class CBCircle : public Component {
         float radius;
         CBCircle(float r);
 };
+
+
+// components for bomberman
+class CHealth : public Component {
+public:
+    int h = 100;
+    CHealth(int h);
+};
+
+class CBlastRadius : public Component {
+public:
+    float br = 2.0f;
+    CBlastRadius(float b);
+};
+
+class CInventory : public Component {
+public:
+    std::vector<int> inv = {};
+    CInventory(std::vector<int> i);
+};
+
+class CDamage : public Component {
+public:
+    float dmg = 25.0f;
+    CDamage(float d);
+};
+
+
+class CBuff : public Component {
+public:
+    int buffId = 0;
+    CBuff(int b);
+};
+
+
+// TODO:
+// move all the buffs from BMEntity.h to here as components
 
 #endif // COMPONENT_H
