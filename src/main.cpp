@@ -8,12 +8,16 @@
 void debug(std::string& message);
 
 
-int main()
-{
+int main() {
     sf::RenderWindow window(sf::VideoMode(1280, 720), "Game Engine Test");
+    window.setFramerateLimit(0);
     Engine engine = Engine(window);
 
+    sf::Clock clock = sf::Clock();
+
     while (window.isOpen()){
+        engine.deltaTime = clock.restart().asSeconds();
+
         sf::Event event;
         while (window.pollEvent(event)){
             if (event.type == sf::Event::Closed) window.close();
@@ -45,11 +49,13 @@ int main()
         window.clear(sf::Color::Black);
         engine.mainLoop();
         window.display();
+        std::string msg = "FPS: " + std::to_string(1.0f/(engine.deltaTime));
+        debug(msg);
     }
 
     return 0;
 }
 
-void debug(std::string& message){
+void debug(std::string& message) {
     std::cout << message << std::endl;
 }

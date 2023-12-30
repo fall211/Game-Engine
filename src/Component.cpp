@@ -13,3 +13,6 @@ CShape::CShape(const sf::RectangleShape& shapein) : shape(shapein) {
     Component();
 }
 
+CLifetime::CLifetime(float lifetimein) : lifetime(lifetimein) {
+    Component();
+}

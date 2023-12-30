@@ -9,13 +9,16 @@ class Engine {
     sf::RenderWindow& m_window;
     size_t m_currentFrame = 0;
 
+
 public:
     Engine(sf::RenderWindow& windowin);
+    float deltaTime = 0.0f;
     void mainLoop();
     const size_t getCurrentFrame();
     void sMovement(EntityList& entities);
     void sEntityCreator();
     void sRender(EntityList& entities);
+    void sLifetime(EntityList& entities);
 };
 
 #endif // ENGINE_H

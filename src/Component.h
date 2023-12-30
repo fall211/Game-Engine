@@ -32,5 +32,11 @@ class CShape : public Component{
         CShape(const sf::RectangleShape& shapein);
 };
 
+class CLifetime : public Component {
+    public:
+        float lifetime = 1.0f;
+        CLifetime(float lifetimein);
+};
+
 #endif // COMPONENT_H
 
