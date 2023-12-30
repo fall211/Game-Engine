@@ -37,3 +37,10 @@
 **/*.DS_Store
 /.vscode
 Makefile
+/.vs/Game-Engine
+/Release
+/x64/Debug
+/Game-Engine.sln
+/Game-Engine.vcxproj
+/Game-Engine.vcxproj.filters
+/Game-Engine.vcxproj.user
