@@ -13,6 +13,9 @@ int main() {
     window.setFramerateLimit(0);
     Engine engine = Engine(window);
 
+
+    engine.sInitState();
+
     sf::Clock clock = sf::Clock();
 
     while (window.isOpen()){
@@ -49,8 +52,8 @@ int main() {
         window.clear(sf::Color::Black);
         engine.mainLoop();
         window.display();
-        std::string msg = "FPS: " + std::to_string(1.0f/(engine.deltaTime));
-        debug(msg);
+        //std::string msg = "FPS: " + std::to_string(1.0f/(engine.deltaTime));
+        //debug(msg);
     }
 
     return 0;

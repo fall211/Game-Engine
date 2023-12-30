@@ -2,6 +2,8 @@
 #include <random>
 #include <cmath>
 
+#include <iostream> //just here for debugging purposes :(
+
 #include "EntityManager.h"
 #include "Engine.h"
 #include "Component.h"
@@ -11,13 +13,48 @@ Engine::Engine(sf::RenderWindow& windowin) : m_window(windowin) {
     m_entityManager = std::make_shared<EntityManager>();
 }
 
+void Engine::sInitState() {
+    float win_x = m_window.getSize().x;
+    float win_y = m_window.getSize().y;
+    float bw = 10.0f; //border width
+
+
+    // Add borders to the window to prevent objects escaping
+    auto e0 = m_entityManager->addEntity("Tile");
+    e0->cTransform = std::make_shared<CTransform>(Vec2(0, 0), Vec2(0, 0));
+    e0->cShape = std::make_shared<CShape>(sf::RectangleShape(sf::Vector2f(win_x, bw)));
+    e0->cShape->shape.setFillColor(sf::Color::Red);
+    e0->cBBox = std::make_shared<CBBox>(win_x, bw);
+
+    auto e1 = m_entityManager->addEntity("Tile");
+    e1->cTransform = std::make_shared<CTransform>(Vec2(0, win_y-bw), Vec2(0, 0));
+    e1->cShape = std::make_shared<CShape>(sf::RectangleShape(sf::Vector2f(win_x, bw)));
+    e1->cShape->shape.setFillColor(sf::Color::Green);
+    e1->cBBox = std::make_shared<CBBox>(win_x, bw);
+
+    auto e2 = m_entityManager->addEntity("Tile");
+    e2->cTransform = std::make_shared<CTransform>(Vec2(win_x-bw, 1.5*bw), Vec2(0, 0));
+    e2->cShape = std::make_shared<CShape>(sf::RectangleShape(sf::Vector2f(bw, win_y-3*bw)));
+    e2->cShape->shape.setFillColor(sf::Color::Blue);
+    e2->cBBox = std::make_shared<CBBox>(bw, win_y-3*bw);
+
+    auto e3 = m_entityManager->addEntity("Tile");
+    e3->cTransform = std::make_shared<CTransform>(Vec2(0, 1.5*bw), Vec2(0, 0));
+    e3->cShape = std::make_shared<CShape>(sf::RectangleShape(sf::Vector2f(bw, win_y-3*bw)));
+    e3->cShape->shape.setFillColor(sf::Color::Yellow);
+    e3->cBBox = std::make_shared<CBBox>(bw, win_y-3*bw);
+
+
+
+}
+
 void Engine::mainLoop(){
     m_entityManager->update();
     sLifetime(m_entityManager->getEntities());
     // sInput(m_entityManager->getEntities());
-    sEntityCreator();
+    //sEntityCreator();
     sMovement(m_entityManager->getEntities());
-    // sCollision(m_entityManager->getEntities());
+    sCollisionHandler(m_entityManager->getEntities());
     sRender(m_entityManager->getEntities());
     m_currentFrame++;
 }
@@ -36,7 +73,7 @@ void Engine::sMovement(EntityList& entities){
 
 
 void Engine::sEntityCreator(){
-    auto e = m_entityManager->addEntity("default");
+    auto e = m_entityManager->addEntity("Player");
 
     // Generate random velocity
     std::random_device rd;
@@ -46,9 +83,10 @@ void Engine::sEntityCreator(){
     float randomY = dis(gen);
 
     e->cTransform = std::make_shared<CTransform>(Vec2(m_window.getSize().x/2 - 50, m_window.getSize().y/2 - 50), Vec2(randomX, randomY));
-    e->cName = std::make_shared<CName>("default");
+    //e->cName = std::make_shared<CName>("default");
     e->cShape = std::make_shared<CShape>(sf::RectangleShape(sf::Vector2f(100, 100)));
-    e->cLifetime = std::make_shared<CLifetime>(1.0f);
+    //e->cLifetime = std::make_shared<CLifetime>(10.0f);
+    e->cBBox = std::make_shared<CBBox>(100, 100);
 
 
 }
@@ -88,6 +126,7 @@ void Engine::sCollisionHandler(EntityList& entities) {
         for (auto& e1 : entities) {
             if (isBBoxCollision(e0, e1)) {
                 // resolve collision for e0 and e1
+                std::cout << "Collision detected" << e0->getId() << " " << e1->getId() << std::endl;
                 sResolveCollision(e0, e1);
             }
         }
@@ -108,9 +147,14 @@ bool Engine::isBBoxCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entity>
     **/
     if (!(e1->cBBox)) return false;
     if (e0->getId() == e1->getId()) return false;
-    Vec2 deltaPos = e0->cTransform->position - e1->cTransform->position;
-    return std::abs(deltaPos.x) < e0->cBBox->width
-        && std::abs(deltaPos.y) < e0->cBBox->height;
+    float x1 = e0->cTransform->position.x;
+    float y1 = e0->cTransform->position.y;
+    float x2 = e1->cTransform->position.x;
+    float y2 = e1->cTransform->position.y;
+    return x2 - x1 < e0->cBBox->width
+        && x1 - x2 < e1->cBBox->width
+        && y2 - y1 < e0->cBBox->height
+        && y1 - y2 < e1->cBBox->height;
 }
 
 //bool Engine::isBCircleCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entity> e1) {
@@ -158,7 +202,7 @@ void Engine::sResolveCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entit
 
     // first handle the physical collision
     Vec2 deltaPos = e0->cTransform->position - e1->cTransform->position;
-    Vec2 overlap = Vec2(e1->cBBox->width, e1->cBBox->height) - deltaPos;
+    Vec2 overlap = Vec2(e0->cBBox->width, e0->cBBox->height) - deltaPos;
 
     // very simple approach currently: just remove the overlap
     // doesn't prioritize either horizontal or vertical direction

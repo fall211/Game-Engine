@@ -23,6 +23,9 @@ public:
     bool isBBoxCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entity> e1);
     //bool isBCircleCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entity> e1);
     void sRender(EntityList& entities);
+
+
+    void sInitState();
     
 };
 
