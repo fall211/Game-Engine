@@ -35,6 +35,5 @@
 /bin/*
 .DS_Store
 **/*.DS_Store
-
 /.vscode
 Makefile
