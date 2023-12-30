@@ -16,3 +16,7 @@ CShape::CShape(const sf::RectangleShape& shapein) : shape(shapein) {
 CLifetime::CLifetime(float lifetimein) : lifetime(lifetimein) {
     Component();
 }
+
+CBBox::CBBox(float w, float h) : w(w), h(h) { Component(); }
+
+CBCircle(float r) : radius(r) { Component() };

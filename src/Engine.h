@@ -19,6 +19,9 @@ public:
     void sEntityCreator();
     void sRender(EntityList& entities);
     void sLifetime(EntityList& entities);
+    void sCollisionHandler(EntityList& entities);
+    bool isBBoxCollision(Entity& e0, Entity& e1);
+    bool isBCircleCollision(Entity& e0, Entity& e1);
 };
 
 #endif // ENGINE_H

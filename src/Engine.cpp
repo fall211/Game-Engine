@@ -1,9 +1,11 @@
 #include <SFML/Graphics.hpp>
 #include <random>
+#include <math>
 
 #include "EntityManager.h"
 #include "Engine.h"
 #include "Component.h"
+#include "EngineMath.h"
 
 Engine::Engine(sf::RenderWindow& windowin) : m_window(windowin) {
     m_entityManager = std::make_shared<EntityManager>();
@@ -71,3 +73,50 @@ void Engine::sLifetime(EntityList& entities){
     }
 }
 
+void Engine::sCollisionHandler(EntityList& entities) {
+  /**
+  Handles collisions between all entities in the system.
+  Currently supports rectangle-rectangle collisions and circle-circle collisions
+  rectangle-circle collisions are no supported; functions that detect collisions
+    currently return false for shape mismatches.
+  **/
+    for (auto& e0 : entities) {
+      if (e0->cBBox) { // ignore entities with no bounding box
+        for (auto& e1 : entities) {
+            if (isBBoxCollision(e0, e1)) {
+                // resolve collision for e0 and e1
+            }
+        }
+      } else if (e0->CBCircle) {
+          for (auto& e1 : entities) {
+              if (isBCircleCollision(e0, e1)) {
+                // resolve collision between two circles
+              }
+          }
+      }
+    }
+}
+
+bool Engine::isBBoxCollision(Entity& e0, Entity& e1) {
+    /**
+    Detects whether the bounding boxes of e0 and e1 overlap.
+    **/
+    if (!(e1->cBBox)) return false;
+    if (e0->getId() == e1->getId()) return false;
+    float dr = e0->cTransform->position - e1->cTransform->position;
+    return std::abs(dr[0]) < e0->cBBox.h && std::abs(dr[1]) < e->cBBox.w;
+}
+
+bool Engine::isBCircleCollision(Entity& e0, Entity& e1) {
+    /**
+    Detects whether the bounding circles of the two entities e0 and e1 overlap;
+    **/
+    if (!(e1->CBCircle)) return false;
+    if (e0->getId() == e1->getId()) return false;
+    float x1 = e0->cTransform->position[0];
+    float y1 = e0->cTransform->position[1];
+    float x2 = e1->cTransform->position[0];
+    float y2 = e1->cTransform->position[1];
+    float rsum = e0->cBCircle.radius + e1->cBCircle.radius;
+    return EngineMath::dist2(x1, y1, x2, y2) <= rsum*rsum;
+}

@@ -38,5 +38,17 @@ class CLifetime : public Component {
         CLifetime(float lifetimein);
 };
 
-#endif // COMPONENT_H
+class CBBox : public Component {
+    public:
+        float w;
+        float h;
+        CBBox(float w, float w);
+};
 
+class CBCircle : public Component {
+    public:
+        float radius;
+        CBCircle(float r);
+};
+
+#endif // COMPONENT_H
