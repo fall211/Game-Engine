@@ -81,6 +81,10 @@ public:
 class CBuff : public Component {
 public:
     int buffId = 0;
+    /**
+    * buffId could enable storing all buffs as an enum
+    * then access that enum to determine what the buff's effects are
+    **/
     CBuff(int b);
 };
 
