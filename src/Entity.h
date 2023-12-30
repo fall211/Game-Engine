@@ -14,10 +14,12 @@ class Entity {
         Entity(const std::string& tag, size_t id);
 
     public:
-        std::shared_ptr<CTransform> cTransform;
-        std::shared_ptr<CName> cName;
-        std::shared_ptr<CShape> cShape;
-        std::shared_ptr<CLifetime> cLifetime;
+        std::shared_ptr<CTransform> cTransform = nullptr;
+        std::shared_ptr<CName> cName = nullptr;
+        std::shared_ptr<CShape> cShape = nullptr;
+        std::shared_ptr<CLifetime> cLifetime = nullptr;
+        std::shared_ptr<CBBox> cBBox = nullptr;
+        std::shared_ptr<CBCircle> cBCircle = nullptr;
         
         friend class EntityManager;
 

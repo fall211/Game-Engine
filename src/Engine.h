@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 #include "EntityManager.h"
+#include "Debug.h"
 
 class Engine {
     std::shared_ptr<EntityManager> m_entityManager;
@@ -20,8 +21,8 @@ public:
     void sRender(EntityList& entities);
     void sLifetime(EntityList& entities);
     void sCollisionHandler(EntityList& entities);
-    bool isBBoxCollision(Entity& e0, Entity& e1);
-    bool isBCircleCollision(Entity& e0, Entity& e1);
+    bool isBBoxCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entity> e1);
+    bool isBCircleCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entity> e1);
 };
 
 #endif // ENGINE_H

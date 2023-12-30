@@ -7,8 +7,6 @@
 
 
 class Component{
-    public:
-        Component(){};
 };
 
 class CTransform : public Component{
@@ -40,15 +38,15 @@ class CLifetime : public Component {
 
 class CBBox : public Component {
     public:
-        float w;
-        float h;
-        CBBox(float w, float w);
+        float w = 1.0f;
+        float h = 1.0f;
+        CBBox(float win, float hin);
 };
 
 class CBCircle : public Component {
     public:
-        float radius;
-        CBCircle(float r);
+        float radius = 1;
+        CBCircle(float rin);
 };
 
 #endif // COMPONENT_H

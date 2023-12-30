@@ -3,9 +3,9 @@
 #include <SFML/Graphics.hpp>
 
 #include "Engine.h"
+#include "Debug.h"
 
 
-void debug(std::string& message);
 
 
 int main() {
@@ -37,11 +37,11 @@ int main() {
             if (event.type == sf::Event::MouseButtonPressed){
                 if (event.mouseButton.button == sf::Mouse::Left){
                     std::string msg = "left";
-                    debug(msg);
+                    Debug::log(msg);
                 }
                 if (event.mouseButton.button == sf::Mouse::Right){
                     std::string msg = "right";
-                    debug(msg);
+                    Debug::log(msg);
                 }
             }
         }
@@ -50,12 +50,9 @@ int main() {
         engine.mainLoop();
         window.display();
         std::string msg = "FPS: " + std::to_string(1.0f/(engine.deltaTime));
-        debug(msg);
+        Debug::log(msg);
     }
 
     return 0;
 }
 
-void debug(std::string& message) {
-    std::cout << message << std::endl;
-}

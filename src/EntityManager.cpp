@@ -20,12 +20,11 @@ void EntityManager::update(){
             [&](const auto& entity) { return !entity->isActive(); }),
         m_entities.end());
 
-    // Erase all inactive entities from m_entityMap
     for (auto& pair : m_entityMap) {
-        pair.second.erase(
-            std::remove_if(pair.second.begin(), pair.second.end(),
-                [](const auto& entity) { return !entity->isActive(); }),
-            pair.second.end());
+        EntityList activeEntities;
+        std::copy_if(pair.second.begin(), pair.second.end(), std::back_inserter(activeEntities),
+            [](const auto& entity) { return entity->isActive(); });
+        pair.second.swap(activeEntities);
     }
 }
 
