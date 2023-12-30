@@ -35,5 +35,6 @@
 /bin/*
 .DS_Store
 **/*.DS_Store
-**/settings.json
-**/tasks.json
+
+/.vscode
+Makefile
