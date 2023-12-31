@@ -13,8 +13,9 @@ class Component{
 
 class CTransform : public Component{
     public:
-        Vec2 position = Vec2(0,0);
-        Vec2 velocity = Vec2(0,0);
+        Vec2 position = Vec2(0, 0);
+        Vec2 prevPos  = Vec2(0, 0);
+        Vec2 velocity = Vec2(0, 0);
 
         CTransform(){};
         CTransform(const Vec2& positionin, const Vec2& velocityin);
@@ -42,6 +43,7 @@ class CBBox : public Component {
     public:
         float width;
         float height;
+        Vec2 halfSize;
         CBBox(float w, float h);
 };
 

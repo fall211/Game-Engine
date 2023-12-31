@@ -1,9 +1,11 @@
 #include "Component.h"
 
 CTransform::CTransform(const Vec2& positionin, const Vec2& velocityin)
-    : position(positionin), velocity(velocityin) {
-        Component();
-    }
+    : position(positionin)
+    , velocity(velocityin) {
+    prevPos = Vec2(0, 0);
+    Component();
+}
 
 CName::CName(const std::string& namein) : name(namein) {
     Component();
@@ -18,7 +20,10 @@ CLifetime::CLifetime(float lifetimein) : lifetime(lifetimein) {
 }
 
 // Bounding shape components
-CBBox::CBBox(float w, float h) : width(w), height(h) { Component(); }
+CBBox::CBBox(float w, float h)
+    : width(w)
+    , height(h)
+    , halfSize(Vec2(width/2, height/2)) { Component(); }
 CBCircle::CBCircle(float r) : radius(r) { Component(); }
 
 

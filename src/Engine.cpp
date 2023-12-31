@@ -66,7 +66,8 @@ const size_t Engine::getCurrentFrame(){
 void Engine::sMovement(EntityList& entities){
     for (auto& e : entities){
         if (e->cTransform){
-            e->cTransform->position += e->cTransform->velocity * deltaTime * 100;
+            e->cTransform->prevPos   = e->cTransform->position;
+            e->cTransform->position += e->cTransform->velocity;// *deltaTime;
         }
     }
 }
@@ -76,13 +77,18 @@ void Engine::sEntityCreator(){
     auto e = m_entityManager->addEntity("Player");
 
     // Generate random velocity
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<float> dis(-2.0f, 2.0f);
-    float randomX = dis(gen);
-    float randomY = dis(gen);
+    //std::random_device rd;
+    //std::mt19937 gen(rd());
+    //std::uniform_real_distribution<float> dis(-2.0f, 2.0f);
+    //float randomX = dis(gen);
+    //float randomY = dis(gen);
 
-    e->cTransform = std::make_shared<CTransform>(Vec2(m_window.getSize().x/2 - 50, m_window.getSize().y/2 - 50), Vec2(randomX, randomY));
+    auto mousePos = sf::Mouse::getPosition(m_window);
+    Vec2 vel = Vec2(mousePos.x - (int)m_window.getSize().x / 2,
+                    mousePos.y - (int)m_window.getSize().y / 2);
+    vel *= vel.invNorm();
+
+    e->cTransform = std::make_shared<CTransform>(Vec2(m_window.getSize().x/2 - 50, m_window.getSize().y/2 - 50), vel);
     //e->cName = std::make_shared<CName>("default");
     e->cShape = std::make_shared<CShape>(sf::RectangleShape(sf::Vector2f(100, 100)));
     //e->cLifetime = std::make_shared<CLifetime>(10.0f);
@@ -126,7 +132,7 @@ void Engine::sCollisionHandler(EntityList& entities) {
         for (auto& e1 : entities) {
             if (isBBoxCollision(e0, e1)) {
                 // resolve collision for e0 and e1
-                std::cout << "Collision detected" << e0->getId() << " " << e1->getId() << std::endl;
+                //std::cout << "Collision detected" << e0->getId() << " " << e1->getId() << std::endl;
                 sResolveCollision(e0, e1);
             }
         }
@@ -201,17 +207,82 @@ void Engine::sResolveCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entit
     if (t0 != "Player") return;
 
     // first handle the physical collision
-    Vec2 deltaPos = e0->cTransform->position - e1->cTransform->position;
-    Vec2 overlap = Vec2(e0->cBBox->width, e0->cBBox->height) - deltaPos;
+    //Vec2 deltaPos  = e0->cTransform->position - e1->cTransform->position;
+    //Vec2 deltaPrev = e0->cTransform->prevPos  - e1->cTransform->prevPos;
 
-    // very simple approach currently: just remove the overlap
-    // doesn't prioritize either horizontal or vertical direction
-    e0->cTransform->position += overlap;
+
+    //// horizontal collisions
+    //// case 0: right collision
+    //if (deltaPos.x > 0 && deltaPos.x < e1->cBBox->width) {
+    //    e0->cTransform->position.x += e1->cBBox->width - deltaPos.x;
+    //    std::cout << "right" << std::endl;
+    //}
+    //// case 1: left collision
+    //else if (deltaPos.x < 0 && -1.0f*deltaPos.x < e0->cBBox->width) {
+    //    e0->cTransform->position.x -= e0->cBBox->width + deltaPos.x;
+    //    std::cout << "left" << std::endl;
+    //}
+    //// vertical collisions
+    //// case 2: bottom collision
+    //else if (deltaPos.y > 0 && deltaPos.y < e1->cBBox->height) {
+    //    e0->cTransform->position.y += e1->cBBox->height - deltaPos.y;
+    //    std::cout << "bottom" << std::endl;
+    //}
+    //// case 3: top collision
+    //else if (deltaPos.y < 0 && -1.0f*deltaPos.y < e0->cBBox->height) {
+    //    e0->cTransform->position.y -= e0->cBBox->height + deltaPos.y;
+    //    std::cout << "top" << std::endl;
+    //}
+    //else {
+    //    std::cout << "idk" << std::endl;
+    //}
+
+    // positions centered on the entity
+    Vec2 cf0 = e0->cTransform->position + e0->cBBox->halfSize;
+    Vec2 cf1 = e1->cTransform->position + e1->cBBox->halfSize;
+    Vec2 deltaPos = cf0 - cf1;
+    Vec2 overlap = Vec2(
+        e1->cBBox->halfSize.x + e0->cBBox->halfSize.x - std::abs(deltaPos.x),
+        e1->cBBox->halfSize.y + e0->cBBox->halfSize.y - std::abs(deltaPos.y)
+    );
+
+    Vec2 deltaPrev = e0->cTransform->prevPos - e1->cTransform->prevPos;
+    deltaPrev += e0->cBBox->halfSize - e1->cBBox->halfSize;
+    Vec2 overlapPrev = Vec2(
+        e1->cBBox->halfSize.x + e0->cBBox->halfSize.x - std::abs(deltaPrev.x),
+        e1->cBBox->halfSize.y + e0->cBBox->halfSize.y - std::abs(deltaPrev.y)
+    );
+
+    //if (overlapPrev.y > 0) {
+    //    e0->cTransform->position.x += overlap.x;
+    //    std::cout << "x " << overlap.x << " " << overlap.y << " " << std::abs(deltaPos.x) << " " << std::abs(deltaPos.y) << std::endl;
+    //}
+    //else if (overlapPrev.x > 0) {
+    //    e0->cTransform->position.y += overlap.y;
+    //    std::cout << "y " << overlap.x << " " << overlap.y << " " << std::abs(deltaPos.x) << " " << std::abs(deltaPos.y) << std::endl;
+    //}
+    //else {
+    //    // overlap from diagonal direction
+    //    // default to snapping horizontally
+    //    e0->cTransform->position.x += overlap.x;
+    //    std::cout << "z " << overlap.x << " " << overlap.y << " " << std::abs(deltaPos.x) << " " << std::abs(deltaPos.y) << std::endl;
+    //}
+
+
+    if (std::abs(overlap.x) < std::abs(overlap.y)) {
+        e0->cTransform->position.x += EngineMath::sgn(deltaPos.x) * overlap.x;
+        std::cout << "x " << overlap.x << " " << overlap.y << " " << std::abs(deltaPos.x) << " " << std::abs(deltaPos.y) << std::endl;
+    } else {
+        e0->cTransform->position.y += EngineMath::sgn(deltaPos.y) * overlap.y;
+        std::cout << "y " << overlap.x << " " << overlap.y << " " << std::abs(deltaPos.x) << " " << std::abs(deltaPos.y) << std::endl;
+    }
 
     // now go over all the possible effects
     if (t1 == "Explosion") {
         e0->cHealth->h -= (int) e1->cDamage->dmg;
         if (e0->cHealth <= 0) {
+            // this should probably do something more than just deleting the player
+            // eg end the game
             e0->destroy();
         }
         return;

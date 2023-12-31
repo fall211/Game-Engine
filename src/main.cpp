@@ -10,7 +10,7 @@ void debug(std::string& message);
 
 int main() {
     sf::RenderWindow window(sf::VideoMode(1280, 720), "Game Engine Test");
-    window.setFramerateLimit(0);
+    window.setFramerateLimit(120);
     Engine engine = Engine(window);
 
 
@@ -54,6 +54,7 @@ int main() {
         window.display();
         //std::string msg = "FPS: " + std::to_string(1.0f/(engine.deltaTime));
         //debug(msg);
+
     }
 
     return 0;
