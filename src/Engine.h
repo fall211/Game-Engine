@@ -36,7 +36,7 @@ public:
     const size_t getCurrentFrame();
     void sMovement(EntityList& entities);
     //void sEntityCreator();
-    std::shared_ptr<Entity> sEntityCreator(std::string& tag, Vec2& pos, Vec2& vel, int width, int height);
+    std::shared_ptr<Entity> sEntityCreator(std::string tag, Vec2 pos, Vec2 vel, int width, int height);
     void sLifetime(EntityList& entities);
     void sCollisionHandler(EntityList& entities);
     void sResolveCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entity> e1);

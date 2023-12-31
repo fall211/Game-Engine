@@ -15,6 +15,14 @@ Engine::Engine(sf::RenderWindow& windowin) : m_window(windowin) {
     m_entityManager = std::make_shared<EntityManager>();
 
 
+    // initialize the grid array
+    for (size_t i = 0; i < rows; i++) {
+        std::vector<bool> temp;
+        temp.resize(cols, false);
+        grid.push_back(temp);
+    }
+
+
     colorDefaults["Player"] = sf::Color::Magenta;
     colorDefaults["Tile"]   = sf::Color::Cyan;
     colorDefaults["Crate"]  = sf::Color::Color(88, 57, 39);
@@ -26,48 +34,13 @@ void Engine::sInitState() {
     float win_x = m_window.getSize().x;
     float win_y = m_window.getSize().y;
 
-    //// Add borders to the window to prevent objects escaping
-    //auto e0 = m_entityManager->addEntity("Tile");
-    //e0->cTransform = std::make_shared<CTransform>(Vec2(0, 0), Vec2(0, 0));
-    //e0->cShape = std::make_shared<CShape>(sf::RectangleShape(sf::Vector2f(win_x, bw)));
-    //e0->cShape->shape.setFillColor(sf::Color::Red);
-    //e0->cBBox = std::make_shared<CBBox>(win_x, bw);
-
-    //auto e1 = m_entityManager->addEntity("Tile");
-    //e1->cTransform = std::make_shared<CTransform>(Vec2(0, win_y-bw), Vec2(0, 0));
-    //e1->cShape = std::make_shared<CShape>(sf::RectangleShape(sf::Vector2f(win_x, bw)));
-    //e1->cShape->shape.setFillColor(sf::Color::Green);
-    //e1->cBBox = std::make_shared<CBBox>(win_x, bw);
-
-    //auto e2 = m_entityManager->addEntity("Tile");
-    //e2->cTransform = std::make_shared<CTransform>(Vec2(win_x-bw, 1.5*bw), Vec2(0, 0));
-    //e2->cShape = std::make_shared<CShape>(sf::RectangleShape(sf::Vector2f(bw, win_y-3*bw)));
-    //e2->cShape->shape.setFillColor(sf::Color::Blue);
-    //e2->cBBox = std::make_shared<CBBox>(bw, win_y-3*bw);
-
-    //auto e3 = m_entityManager->addEntity("Tile");
-    //e3->cTransform = std::make_shared<CTransform>(Vec2(0, 1.5*bw), Vec2(0, 0));
-    //e3->cShape = std::make_shared<CShape>(sf::RectangleShape(sf::Vector2f(bw, win_y-3*bw)));
-    //e3->cShape->shape.setFillColor(sf::Color::Yellow);
-    //e3->cBBox = std::make_shared<CBBox>(bw, win_y-3*bw);
-
-
-    // turn the remaining window space into a grid
+    // turn the window space into a grid
     // and fill it with crates and tiles
-
-    // initialize the grid array
-    //std::vector<std::vector<bool>> grid;
-    for (size_t i = 0; i < rows; i++) {
-        std::vector<bool> temp;
-        temp.resize(cols, false);
-        grid.push_back(temp);
-    }
-
     float gridX = win_x / cols;
     float gridY = win_y / rows;
 
     // add player to the top left corner
-    auto e_player = sEntityCreator("Player", Vec2(0, 0), Vec2(0, 0), gridX, gridY);
+    auto e_player = sEntityCreator("Player", Vec2(gridX, gridY), Vec2(0, 0), gridX, gridY);
     e_player->cBlastRadius = std::make_shared<CBlastRadius>(2);
     e_player->cControls = std::make_shared<CControls>();
 
@@ -76,18 +49,16 @@ void Engine::sInitState() {
     for (size_t i = 0; i < rows; i++) {
         for (size_t j = 0; j < cols; j++) {
             if (
-                i > 2 && i < 6 && j > 4 && j < 10
+                i == 0 || j == 0 || i == rows - 1 || j == cols - 1
+             || i > 2 && i < 6 && j > 4 && j < 10
              || i > 2 && i < 6 && j > 14 && j < 20
              || i > 8 && i < 12 && j > 4 && j < 10
              || i > 8 && i < 12 && j > 14 && j < 20
             ) {
-                auto e = m_entityManager->addEntity("Tile");
-                Vec2 pos = Vec2(bw + j*gridX, bw + i*gridY);
-                Vec2 vel = Vec2(0, 0);
-                e->cTransform = std::make_shared<CTransform>(pos, vel);
-                e->cShape = std::make_shared<CShape>(sf::RectangleShape(sf::Vector2f(gridX, gridY)));
-                e->cShape->shape.setFillColor(sf::Color::Cyan);
-                e->cBBox = std::make_shared<CBBox>(gridX, gridY);
+                auto e = sEntityCreator("Tile",
+                    Vec2(j * gridX, i * gridY),
+                    Vec2(0, 0),
+                    gridX, gridY);
 
                 grid[i][j] = true;
             }
@@ -101,24 +72,15 @@ void Engine::sInitState() {
         int randY = rand() % rows;
 
         if (!grid[randY][randX]) {
-            auto e = m_entityManager->addEntity("Crate");
-            Vec2 pos = Vec2(bw + randX * gridX, bw + randY * gridY);
-            Vec2 vel = Vec2(0, 0);
-            e->cTransform = std::make_shared<CTransform>(pos, vel);
-            e->cShape = std::make_shared<CShape>(sf::RectangleShape(sf::Vector2f(gridX, gridY)));
-            e->cShape->shape.setFillColor(sf::Color::Yellow);
-            e->cBBox = std::make_shared<CBBox>(gridX, gridY);
+            auto e = sEntityCreator("Crate",
+                Vec2(randX * gridX, randY * gridY),
+                Vec2(0, 0),
+                gridX, gridY);
 
             grid[randY][randX] = true;
             i++;
         }
     }
-
-
-
-
-
-
 }
 
 void Engine::mainLoop(){
@@ -146,7 +108,7 @@ void Engine::sMovement(EntityList& entities){
 }
 
 
-std::shared_ptr<Entity> Engine::sEntityCreator(std::string& tag, Vec2& pos, Vec2& vel, int width, int height){
+std::shared_ptr<Entity> Engine::sEntityCreator(std::string tag, Vec2 pos, Vec2 vel, int width, int height){
     /**
     * a basic wrapper for creating entities with basic properties to reduce redundancy
     * 
@@ -490,21 +452,19 @@ void Engine::sSpawnBomb(std::shared_ptr<Entity> owner) {
     float win_x = m_window.getSize().x;
     float win_y = m_window.getSize().y;
 
-    float gridX = (win_x - 2 * bw) / cols;
-    float gridY = (win_y - 2 * bw) / rows;
+    float gridX = win_x / cols;
+    float gridY = win_y / rows;
 
-    int i_nearest = round((owner->cTransform->position.y - bw) / gridY);
-    int j_nearest = round((owner->cTransform->position.x - bw) / gridX);
+    int i_nearest = round(owner->cTransform->position.y / gridY);
+    int j_nearest = round(owner->cTransform->position.x / gridX);
 
     if (grid[i_nearest][j_nearest]) return;
 
     // create the bomb
-    auto bomb = m_entityManager->addEntity("Bomb");
-
-    bomb->cTransform = std::make_shared<CTransform>(Vec2(bw + j_nearest*gridX, bw + i_nearest*gridY), Vec2(0, 0));
-    bomb->cShape = std::make_shared<CShape>(sf::RectangleShape(sf::Vector2f(gridX, gridY)));
-    bomb->cShape->shape.setFillColor(sf::Color::Black);
-    bomb->cBBox = std::make_shared<CBBox>(gridX, gridY);
+    auto bomb = sEntityCreator("Bomb",
+        Vec2(j_nearest * gridX, i_nearest * gridY),
+        Vec2(0, 0),
+        gridX, gridY);
 
     // the bomb starts ticking as soon as it's dropped
     bomb->cLifetime = std::make_shared<CLifetime>(bombLifeTime);
