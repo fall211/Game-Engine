@@ -6,6 +6,7 @@
 
 #include <iostream> //just here for debugging purposes :(
 
+
 #include "EntityManager.h"
 #include "Engine.h"
 #include "Component.h"
@@ -27,7 +28,8 @@ Engine::Engine(sf::RenderWindow& windowin) : m_window(windowin) {
     colorDefaults["Tile"]   = sf::Color::Cyan;
     colorDefaults["Crate"]  = sf::Color::Color(88, 57, 39);
     colorDefaults["Bomb"]   = sf::Color::Black;
-    colorDefaults["Drop"]   = sf::Color::Yellow;
+    colorDefaults["Flame"]  = sf::Color::Yellow;
+    colorDefaults["Drop"]   = sf::Color::Green;
 }
 
 void Engine::sInitState() {
@@ -43,6 +45,7 @@ void Engine::sInitState() {
     auto e_player = sEntityCreator("Player", Vec2(gridX, gridY), Vec2(0, 0), gridX, gridY);
     e_player->cBlastRadius = std::make_shared<CBlastRadius>(2);
     e_player->cControls = std::make_shared<CControls>();
+    e_player->cHealth = std::make_shared<CHealth>(playerHealth);
 
 
     // set the tiles in fixed locations to prevent unreachable pockets
@@ -181,9 +184,37 @@ void Engine::sRemoveEntity(std::shared_ptr<Entity> e) {
         // spawn flames, detonate all connected bombs, break all connected crates
         // for now, only spawns the flames; the flames will set off bombs and break crates on the next frame
         for (int i = 0; i < e->cBlastRadius->br; i++) {
-            if (i + i_nearest >= cols) break;
-            //sEntityCreator("Flame", pos, Vec2(0,0), )
-            if (grid[i + i_nearest][j_nearest]) break;
+            if (j_nearest + i >= cols) break;
+            Vec2 pos = Vec2((j_nearest + i)* gridX, i_nearest * gridY);
+            auto e = sEntityCreator("Flame", pos, Vec2(0, 0), gridX, gridY);
+            e->cLifetime = std::make_shared<CLifetime>(flameLifeTime);
+            e->cDamage = std::make_shared<CDamage>(flameDamage);
+            if (grid[i_nearest][j_nearest + i]) break;
+        }
+        for (int i = 0; i < e->cBlastRadius->br; i++) {
+            if (j_nearest - i < 0) break;
+            Vec2 pos = Vec2((j_nearest - i)* gridX, i_nearest * gridY);
+            auto e = sEntityCreator("Flame", pos, Vec2(0, 0), gridX, gridY);
+            e->cLifetime = std::make_shared<CLifetime>(flameLifeTime);
+            e->cDamage = std::make_shared<CDamage>(flameDamage);
+            if (grid[i_nearest][j_nearest - i]) break;
+        }
+        
+        for (int i = 0; i < e->cBlastRadius->br; i++) {
+            if (i_nearest + i >= rows) break;
+            Vec2 pos = Vec2(j_nearest * gridX, (i_nearest + i) * gridY);
+            auto e = sEntityCreator("Flame", pos, Vec2(0, 0), gridX, gridY);
+            e->cLifetime = std::make_shared<CLifetime>(flameLifeTime);
+            e->cDamage = std::make_shared<CDamage>(flameDamage);
+            if (grid[i_nearest + i][j_nearest]) break;
+        }
+        for (int i = 0; i < e->cBlastRadius->br; i++) {
+            if (i_nearest - i < 0) break;
+            Vec2 pos = Vec2(j_nearest * gridX, (i_nearest - i) * gridY);
+            auto e = sEntityCreator("Flame", pos, Vec2(0, 0), gridX, gridY);
+            e->cLifetime = std::make_shared<CLifetime>(flameLifeTime);
+            e->cDamage = std::make_shared<CDamage>(flameDamage);
+            if (grid[i_nearest - i][j_nearest]) break;
         }
 
 
@@ -281,10 +312,10 @@ void Engine::sResolveCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entit
     * Player - Tile
     * Player - Player
     * Player - Bomb
-    * Player - Explosion
+    * Player - Flame
     * Player - Drop
-    * Explosion - Drop
-    * TODO: Explosion - Bomb --> will set off the bomb
+    * Flame - Drop
+    * TODO: Flame - Bomb --> will set off the bomb
     **/
 
     const std::string t0 = e0->getTag();
@@ -293,13 +324,24 @@ void Engine::sResolveCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entit
     if (t0 == "Tile") return;
 
     // handle the only possibility that doesn't include a player
-    if (t0 == "Explosion" && t1 == "Drop") {
+    if (t0 == "Flame" && t1 == "Drop") {
         e1->destroy();
         return;
     }
 
     // now return if e0 doesn't represent a player entity
     if (t0 != "Player") return;
+
+    // flame damages the player but doesn't move them
+    if (t1 == "Flame") {
+        e0->cHealth->h -= (int)e1->cDamage->dmg;
+        if (e0->cHealth->h <= 0) {
+            // this should probably do something more than just deleting the player
+            // eg end the game
+            e0->destroy();
+        }
+        return;
+    }
 
 
     // special case where the player is sitting on top of a bomb they just placed
@@ -332,16 +374,6 @@ void Engine::sResolveCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entit
     }
 
     // now go over all the possible effects
-    if (t1 == "Explosion") {
-        e0->cHealth->h -= (int) e1->cDamage->dmg;
-        if (e0->cHealth <= 0) {
-            // this should probably do something more than just deleting the player
-            // eg end the game
-            e0->destroy();
-        }
-        return;
-    }
-
     if (t1 == "Drop") {
         e0->addToInventory(e1->cBuff->buffId, 1);
         e1->destroy();

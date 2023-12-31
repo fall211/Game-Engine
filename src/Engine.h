@@ -14,8 +14,10 @@ class Engine {
 
     // *** BOMBERMAN PARAMETERS ***
     const float playerSpeed = 1.0f;
+    const int playerHealth = 100;
     const float bombLifeTime = 3.0f;
     const float flameLifeTime = 0.5f;
+    const float flameDamage = 1000.0f;
 
     std::map<std::string, sf::Color> colorDefaults;
 
