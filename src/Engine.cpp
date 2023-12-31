@@ -10,6 +10,7 @@
 #include "Engine.h"
 #include "Component.h"
 #include "EngineMath.h"
+#include "BMConsts.h"
 
 Engine::Engine(sf::RenderWindow& windowin) : m_window(windowin) {
     m_entityManager = std::make_shared<EntityManager>();
@@ -18,7 +19,7 @@ Engine::Engine(sf::RenderWindow& windowin) : m_window(windowin) {
 void Engine::sInitState() {
     float win_x = m_window.getSize().x;
     float win_y = m_window.getSize().y;
-    float bw = 10.0f; //border width
+    //float bw = 10.0f; //border width
 
 
     // TODO: make all this use Engine::sEntityCreator() instead
@@ -51,19 +52,19 @@ void Engine::sInitState() {
 
     // turn the remaining window space into a grid
     // and fill it with crates and tiles
-    const int rows = 15;
-    const int cols = 25;
+    //const int rows = 15;
+    //const int cols = 25;
 
     // initialize the grid array
-    std::vector<std::vector<bool>> grid;
+    //std::vector<std::vector<bool>> grid;
     for (size_t i = 0; i < rows; i++) {
         std::vector<bool> temp;
         temp.resize(cols, false);
         grid.push_back(temp);
     }
 
-    const float gridX = (win_x - 2 * bw) / cols;
-    const float gridY = (win_y - 2 * bw) / rows;
+    float gridX = (win_x - 2 * bw) / cols;
+    float gridY = (win_y - 2 * bw) / rows;
 
     // add player to the top left corner
     auto e_player = m_entityManager->addEntity("Player");
@@ -203,14 +204,26 @@ void Engine::sCollisionHandler(EntityList& entities) {
     * TODO: this can be significantly improved by only looping over _moving_ entities
     **/
     for (auto& e0 : entities) {
-      if (e0->cBBox) { // ignore entities with no bounding box
-        for (auto& e1 : entities) {
-            if (isBBoxCollision(e0, e1)) {
-                // resolve collision for e0 and e1
-                //std::cout << "Collision detected" << e0->getId() << " " << e1->getId() << std::endl;
-                sResolveCollision(e0, e1);
+        // an extra check for bombs that are no longer touching their owner
+        if (e0->getTag() == "Bomb" && e0->cOwner) {
+            for (auto& e1 : entities) {
+                if (e0->cOwner->ownerId == e1->getId()) {
+                    if (!isBBoxCollision(e0, e1)) {
+                        e0->cOwner = nullptr;
+                    }
+                    break;
+                }
             }
+            continue;
         }
+        if (e0->cBBox) { // ignore entities with no bounding box
+            for (auto& e1 : entities) {
+                if (isBBoxCollision(e0, e1)) {
+                    // resolve collision for e0 and e1
+                    //std::cout << "Collision detected" << e0->getId() << " " << e1->getId() << std::endl;
+                    sResolveCollision(e0, e1);
+                }
+            }
       //} else if (e0->cBCircle) {
       //    for (auto& e1 : entities) {
       //        if (isBCircleCollision(e0, e1)) {
@@ -218,7 +231,7 @@ void Engine::sCollisionHandler(EntityList& entities) {
       //            sResolveCollision(e0, e1);
       //        }
       //    }
-      }
+        }
     }
 }
 
@@ -265,6 +278,7 @@ void Engine::sResolveCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entit
     * Player - Explosion
     * Player - Drop
     * Explosion - Drop
+    * TODO: Explosion - Bomb --> will set off the bomb
     **/
 
     const std::string t0 = e0->getTag();
@@ -280,6 +294,10 @@ void Engine::sResolveCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entit
 
     // now return if e0 doesn't represent a player entity
     if (t0 != "Player") return;
+
+
+    // special case where the player is sitting on top of a bomb they just placed
+    if (t1 == "Bomb" && e1->cOwner && e1->cOwner->ownerId == e0->getId()) return;
 
 
     // positions centered on the entity
@@ -338,24 +356,27 @@ void Engine::sKeyPressHandler(sf::Event event) {
         }
         switch (i) {
         case 0:
-            e->cTransform->velocity.y = -1.0f;
+            e->cTransform->velocity.y = -1.0f * BMDefaults::playerSpeed;
             break;
         case 1:
-            e->cTransform->velocity.x = -1.0f;
+            e->cTransform->velocity.x = -1.0f * BMDefaults::playerSpeed;
             break;
         case 2:
-            e->cTransform->velocity.y = 1.0f;
+            e->cTransform->velocity.y = 1.0f * BMDefaults::playerSpeed;
             break;
         case 3:
-            e->cTransform->velocity.x = 1.0f;
+            e->cTransform->velocity.x = 1.0f * BMDefaults::playerSpeed;
             break;
         case 4:
+            sSpawnBomb(e);
             break;
         case 5:
             break;
         case 6:
             break;
         case 7:
+            break;
+        case 8:
             break;
         default:
             break;
@@ -395,6 +416,8 @@ void Engine::sKeyReleaseHandler(sf::Event event) {
             break;
         case 7:
             break;
+        case 8:
+            break;
         default:
             break;
         }
@@ -407,5 +430,43 @@ void Engine::sMousePressHandler(sf::Event event) {
 }
 
 void Engine::sMouseReleaseHandler(sf::Event event) {
+
+}
+
+
+void Engine::sSpawnBomb(std::shared_ptr<Entity> owner) {
+    /**
+    * Spawns a bomb at the grid point nearest to the player
+    * the player has "ownership" of the bomb so that we may bypass their collision
+    * during initial overlap
+    **/
+
+
+    // first check that there isn't already a bomb at the nearest gridpoint
+    float win_x = m_window.getSize().x;
+    float win_y = m_window.getSize().y;
+
+    float gridX = (win_x - 2 * bw) / cols;
+    float gridY = (win_y - 2 * bw) / rows;
+
+    int i_nearest = round((owner->cTransform->position.y - bw) / gridY);
+    int j_nearest = round((owner->cTransform->position.x - bw) / gridX);
+
+    if (grid[i_nearest][j_nearest]) return;
+
+    // create the bomb
+    auto bomb = m_entityManager->addEntity("Bomb");
+
+    bomb->cTransform = std::make_shared<CTransform>(Vec2(bw + j_nearest*gridX, bw + i_nearest*gridY), Vec2(0, 0));
+    bomb->cShape = std::make_shared<CShape>(sf::RectangleShape(sf::Vector2f(gridX, gridY)));
+    bomb->cShape->shape.setFillColor(sf::Color::Black);
+    bomb->cBBox = std::make_shared<CBBox>(gridX, gridY);
+
+    // the bomb starts ticking as soon as it's dropped
+    bomb->cLifetime = std::make_shared<CLifetime>(BMDefaults::bombLifeTime);
+
+    // give the player ownership of this bomb; will allow movement through it until leaves contact
+    bomb->cOwner = std::make_shared<COwner>(owner->getId());
+
 
 }

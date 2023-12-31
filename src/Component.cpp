@@ -1,4 +1,5 @@
 #include "Component.h"
+//#include "Entity.h"
 
 CTransform::CTransform(const Vec2& positionin, const Vec2& velocityin)
     : position(positionin)
@@ -25,6 +26,8 @@ CBBox::CBBox(float w, float h)
     , height(h)
     , halfSize(Vec2(width/2, height/2)) { Component(); }
 CBCircle::CBCircle(float r) : radius(r) { Component(); }
+//COwner::COwner(std::shared_ptr<Entity> e) : owner(e) { Component(); }
+COwner::COwner(int o) : ownerId(o) { Component(); }
 
 CControls::CControls() { Component(); }
 CControls::CControls(std::vector<int> kb) : keybinds(kb) { Component(); }

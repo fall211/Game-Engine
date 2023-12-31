@@ -4,6 +4,7 @@
 #include <string>
 #include <SFML/Graphics.hpp>
 #include "vec2.h"
+//#include "Entity.h"
 
 
 class Component{
@@ -53,6 +54,18 @@ class CBCircle : public Component {
         CBCircle(float r);
 };
 
+//class COwner : public Component {
+//public:
+//    std::shared_ptr<Entity> owner;
+//    COwner(std::shared_ptr<Entity> e);
+//};
+
+// simpler owner component
+class COwner : public Component {
+public:
+    int ownerId;
+    COwner(int o);
+};
 
 class CControls : public Component {
 public:
@@ -63,14 +76,15 @@ public:
     * keybind[1] -> left movement
     * keybind[2] -> down movement
     * keybind[3] -> right movement
-    * keybind[4] -> buff 1
-    * keybind[5] -> buff 2
-    * keybind[6] -> buff 3
-    * keybind[7] -> buff 4
+    * keybind[4] -> drop bomb
+    * keybind[5] -> buff 1
+    * keybind[6] -> buff 2
+    * keybind[7] -> buff 3
+    * keybind[8] -> buff 4
     * 
     * and possibly more to come...
     **/
-    const std::vector<int> keybinds = { 22, 0, 18, 3, 27, 28, 29, 30 };
+    const std::vector<int> keybinds = { 22, 0, 18, 3, 57, 27, 28, 29, 30 };
     CControls();
     CControls(std::vector<int> kb);
 };

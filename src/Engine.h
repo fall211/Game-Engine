@@ -9,6 +9,12 @@ class Engine {
     sf::RenderWindow& m_window;
     size_t m_currentFrame = 0;
 
+    // game map parameters
+    float bw = 10.0f;
+    const int rows = 15;
+    const int cols = 25;
+    std::vector<std::vector<bool>> grid;
+
 
 public:
     Engine(sf::RenderWindow& windowin);
@@ -32,6 +38,8 @@ public:
     void sKeyReleaseHandler(sf::Event event);
     void sMousePressHandler(sf::Event event);
     void sMouseReleaseHandler(sf::Event event);
+
+    void sSpawnBomb(std::shared_ptr<Entity> owner);
     
 };
 

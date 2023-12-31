@@ -18,6 +18,7 @@ class Entity {
         std::shared_ptr<CName> cName;
         std::shared_ptr<CShape> cShape;
         std::shared_ptr<CLifetime> cLifetime;
+        std::shared_ptr<COwner> cOwner;
 
         std::shared_ptr<CBBox> cBBox;
         std::shared_ptr<CBCircle> cBCircle;

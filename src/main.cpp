@@ -28,7 +28,7 @@ int main() {
             if (event.type == sf::Event::KeyPressed) {
                 engine.sKeyPressHandler(event);
 
-                //std::cout << event.key.code << std::endl;
+                std::cout << event.key.code << std::endl;
 
                 //switch(event.key.scancode){
                 //    case sf::Keyboard::Scan::Escape:
@@ -60,7 +60,7 @@ int main() {
             
         }
 
-        window.clear(sf::Color::Black);
+        window.clear(sf::Color::Color(114,114,144));
         engine.mainLoop();
         window.display();
         //std::string msg = "FPS: " + std::to_string(1.0f/(engine.deltaTime));
