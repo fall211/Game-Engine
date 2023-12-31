@@ -98,9 +98,14 @@ public:
 };
 
 class CBlastRadius : public Component {
+    /**
+    * This component describes how big the bomb explosions are
+    * blast radius of 1 is just a single square
+    * so 2 is the default (1 flame in each direction)
+    **/
 public:
-    float br = 2.0f;
-    CBlastRadius(float b);
+    int br = 2;
+    CBlastRadius(int b);
 };
 
 class CInventory : public Component {

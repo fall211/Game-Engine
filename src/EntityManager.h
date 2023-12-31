@@ -22,7 +22,6 @@ class EntityManager {
         std::shared_ptr<Entity> addEntity(const std::string& tag);
         EntityList& getEntities();
         EntityList& getEntities(const std::string& tag);
-
 };
 
 #endif // ENTITYMANAGER_H

@@ -120,7 +120,17 @@
 //	Teleport(float mr, std::string tp);
 //};
 //
-//class Grenade 
+// 
+// different types of bombs to implement:
+// - grenade
+// - random-time time bomb?
+// - atom bomb (destoys even tiles)
+// -  max-arm length bomb
+// 
+// 
+// other random drops:
+// - increase number of simultaneous bombs
+// - increase bomb arm-length
 //
 //**/
 //

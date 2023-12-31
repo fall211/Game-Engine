@@ -10,50 +10,50 @@
 #include "Engine.h"
 #include "Component.h"
 #include "EngineMath.h"
-#include "BMConsts.h"
 
 Engine::Engine(sf::RenderWindow& windowin) : m_window(windowin) {
     m_entityManager = std::make_shared<EntityManager>();
+
+
+    colorDefaults["Player"] = sf::Color::Magenta;
+    colorDefaults["Tile"]   = sf::Color::Cyan;
+    colorDefaults["Crate"]  = sf::Color::Color(88, 57, 39);
+    colorDefaults["Bomb"]   = sf::Color::Black;
+    colorDefaults["Drop"]   = sf::Color::Yellow;
 }
 
 void Engine::sInitState() {
     float win_x = m_window.getSize().x;
     float win_y = m_window.getSize().y;
-    //float bw = 10.0f; //border width
 
+    //// Add borders to the window to prevent objects escaping
+    //auto e0 = m_entityManager->addEntity("Tile");
+    //e0->cTransform = std::make_shared<CTransform>(Vec2(0, 0), Vec2(0, 0));
+    //e0->cShape = std::make_shared<CShape>(sf::RectangleShape(sf::Vector2f(win_x, bw)));
+    //e0->cShape->shape.setFillColor(sf::Color::Red);
+    //e0->cBBox = std::make_shared<CBBox>(win_x, bw);
 
-    // TODO: make all this use Engine::sEntityCreator() instead
+    //auto e1 = m_entityManager->addEntity("Tile");
+    //e1->cTransform = std::make_shared<CTransform>(Vec2(0, win_y-bw), Vec2(0, 0));
+    //e1->cShape = std::make_shared<CShape>(sf::RectangleShape(sf::Vector2f(win_x, bw)));
+    //e1->cShape->shape.setFillColor(sf::Color::Green);
+    //e1->cBBox = std::make_shared<CBBox>(win_x, bw);
 
-    // Add borders to the window to prevent objects escaping
-    auto e0 = m_entityManager->addEntity("Tile");
-    e0->cTransform = std::make_shared<CTransform>(Vec2(0, 0), Vec2(0, 0));
-    e0->cShape = std::make_shared<CShape>(sf::RectangleShape(sf::Vector2f(win_x, bw)));
-    e0->cShape->shape.setFillColor(sf::Color::Red);
-    e0->cBBox = std::make_shared<CBBox>(win_x, bw);
+    //auto e2 = m_entityManager->addEntity("Tile");
+    //e2->cTransform = std::make_shared<CTransform>(Vec2(win_x-bw, 1.5*bw), Vec2(0, 0));
+    //e2->cShape = std::make_shared<CShape>(sf::RectangleShape(sf::Vector2f(bw, win_y-3*bw)));
+    //e2->cShape->shape.setFillColor(sf::Color::Blue);
+    //e2->cBBox = std::make_shared<CBBox>(bw, win_y-3*bw);
 
-    auto e1 = m_entityManager->addEntity("Tile");
-    e1->cTransform = std::make_shared<CTransform>(Vec2(0, win_y-bw), Vec2(0, 0));
-    e1->cShape = std::make_shared<CShape>(sf::RectangleShape(sf::Vector2f(win_x, bw)));
-    e1->cShape->shape.setFillColor(sf::Color::Green);
-    e1->cBBox = std::make_shared<CBBox>(win_x, bw);
-
-    auto e2 = m_entityManager->addEntity("Tile");
-    e2->cTransform = std::make_shared<CTransform>(Vec2(win_x-bw, 1.5*bw), Vec2(0, 0));
-    e2->cShape = std::make_shared<CShape>(sf::RectangleShape(sf::Vector2f(bw, win_y-3*bw)));
-    e2->cShape->shape.setFillColor(sf::Color::Blue);
-    e2->cBBox = std::make_shared<CBBox>(bw, win_y-3*bw);
-
-    auto e3 = m_entityManager->addEntity("Tile");
-    e3->cTransform = std::make_shared<CTransform>(Vec2(0, 1.5*bw), Vec2(0, 0));
-    e3->cShape = std::make_shared<CShape>(sf::RectangleShape(sf::Vector2f(bw, win_y-3*bw)));
-    e3->cShape->shape.setFillColor(sf::Color::Yellow);
-    e3->cBBox = std::make_shared<CBBox>(bw, win_y-3*bw);
+    //auto e3 = m_entityManager->addEntity("Tile");
+    //e3->cTransform = std::make_shared<CTransform>(Vec2(0, 1.5*bw), Vec2(0, 0));
+    //e3->cShape = std::make_shared<CShape>(sf::RectangleShape(sf::Vector2f(bw, win_y-3*bw)));
+    //e3->cShape->shape.setFillColor(sf::Color::Yellow);
+    //e3->cBBox = std::make_shared<CBBox>(bw, win_y-3*bw);
 
 
     // turn the remaining window space into a grid
     // and fill it with crates and tiles
-    //const int rows = 15;
-    //const int cols = 25;
 
     // initialize the grid array
     //std::vector<std::vector<bool>> grid;
@@ -63,15 +63,12 @@ void Engine::sInitState() {
         grid.push_back(temp);
     }
 
-    float gridX = (win_x - 2 * bw) / cols;
-    float gridY = (win_y - 2 * bw) / rows;
+    float gridX = win_x / cols;
+    float gridY = win_y / rows;
 
     // add player to the top left corner
-    auto e_player = m_entityManager->addEntity("Player");
-    e_player->cTransform = std::make_shared<CTransform>(Vec2(bw, bw), Vec2(0, 0));
-    e_player->cShape = std::make_shared<CShape>(sf::RectangleShape(sf::Vector2f(gridX, gridY)));
-    e_player->cShape->shape.setFillColor(sf::Color::Magenta);
-    e_player->cBBox = std::make_shared<CBBox>(gridX, gridY);
+    auto e_player = sEntityCreator("Player", Vec2(0, 0), Vec2(0, 0), gridX, gridY);
+    e_player->cBlastRadius = std::make_shared<CBlastRadius>(2);
     e_player->cControls = std::make_shared<CControls>();
 
 
@@ -149,28 +146,28 @@ void Engine::sMovement(EntityList& entities){
 }
 
 
-void Engine::sEntityCreator(){
-    auto e = m_entityManager->addEntity("Player");
-
-    // Generate random velocity
-    //std::random_device rd;
-    //std::mt19937 gen(rd());
-    //std::uniform_real_distribution<float> dis(-2.0f, 2.0f);
-    //float randomX = dis(gen);
-    //float randomY = dis(gen);
-
-    auto mousePos = sf::Mouse::getPosition(m_window);
-    Vec2 vel = Vec2(mousePos.x - (int)m_window.getSize().x / 2,
-                    mousePos.y - (int)m_window.getSize().y / 2);
-    vel *= vel.invNorm();
-
-    e->cTransform = std::make_shared<CTransform>(Vec2(m_window.getSize().x/2 - 50, m_window.getSize().y/2 - 50), vel);
+std::shared_ptr<Entity> Engine::sEntityCreator(std::string& tag, Vec2& pos, Vec2& vel, int width, int height){
+    /**
+    * a basic wrapper for creating entities with basic properties to reduce redundancy
+    * 
+    * gives the entity a tag, transform, rectangular shape, and a rectangular bounding box
+    * colors the entity based on defaults
+    **/
+    auto e = m_entityManager->addEntity(tag);
+    e->cTransform = std::make_shared<CTransform>(pos, vel);
     //e->cName = std::make_shared<CName>("default");
-    e->cShape = std::make_shared<CShape>(sf::RectangleShape(sf::Vector2f(100, 100)));
+    e->cShape = std::make_shared<CShape>(sf::RectangleShape(sf::Vector2f(width, height)));
+    // add a default color to the shape
+    e->cShape->shape.setFillColor(colorDefaults[tag]);
     //e->cLifetime = std::make_shared<CLifetime>(10.0f);
-    e->cBBox = std::make_shared<CBBox>(100, 100);
+    e->cBBox = std::make_shared<CBBox>(width, height);
 
 
+    // special cases
+    if (tag == "Player") numPlayers++;
+
+
+    return e;
 }
 
 void Engine::sRender(EntityList& entities){
@@ -187,10 +184,57 @@ void Engine::sLifetime(EntityList& entities){
         if (e->cLifetime){
             e->cLifetime->lifetime -= deltaTime;
             if (e->cLifetime->lifetime <= 0){
-                e->destroy();
+                sRemoveEntity(e);
             }
         }
     }
+}
+
+void Engine::sRemoveEntity(std::shared_ptr<Entity> e) {
+    /**
+    * Destroys the given entity and resolves any resulting actions
+    * e.g. spawn flames from bomb or drop items from a destroyed crate
+    **/
+    // first, of course, mark the entity for deletion
+    e->destroy();
+
+    std::string t = e->getTag();
+    if (t == "Player") {
+        if (--numPlayers == 0) sEndGame();
+        return;
+    }
+
+    float win_x = m_window.getSize().x;
+    float win_y = m_window.getSize().y;
+
+    float gridX = win_x / cols;
+    float gridY = win_y / rows;
+
+    int i_nearest = round(e->cTransform->position.y / gridY);
+    int j_nearest = round(e->cTransform->position.x / gridX);
+
+    grid[i_nearest][j_nearest] = false;
+
+    if (t == "Bomb") {
+        // spawn flames, detonate all connected bombs, break all connected crates
+        // for now, only spawns the flames; the flames will set off bombs and break crates on the next frame
+        for (int i = 0; i < e->cBlastRadius->br; i++) {
+            if (i + i_nearest >= cols) break;
+            //sEntityCreator("Flame", pos, Vec2(0,0), )
+            if (grid[i + i_nearest][j_nearest]) break;
+        }
+
+
+    }
+    else if (t == "Crate") {
+
+    }
+    else if (t == "Tile") {
+        // this case should be rare; only occurs when an atom bomb detones
+        // or maybe when using a level editor?
+    }
+
+    // TODO: special bombs
 }
 
 void Engine::sCollisionHandler(EntityList& entities) {
@@ -356,16 +400,16 @@ void Engine::sKeyPressHandler(sf::Event event) {
         }
         switch (i) {
         case 0:
-            e->cTransform->velocity.y = -1.0f * BMDefaults::playerSpeed;
+            e->cTransform->velocity.y = -1.0f * playerSpeed;
             break;
         case 1:
-            e->cTransform->velocity.x = -1.0f * BMDefaults::playerSpeed;
+            e->cTransform->velocity.x = -1.0f * playerSpeed;
             break;
         case 2:
-            e->cTransform->velocity.y = 1.0f * BMDefaults::playerSpeed;
+            e->cTransform->velocity.y = 1.0f * playerSpeed;
             break;
         case 3:
-            e->cTransform->velocity.x = 1.0f * BMDefaults::playerSpeed;
+            e->cTransform->velocity.x = 1.0f * playerSpeed;
             break;
         case 4:
             sSpawnBomb(e);
@@ -463,10 +507,18 @@ void Engine::sSpawnBomb(std::shared_ptr<Entity> owner) {
     bomb->cBBox = std::make_shared<CBBox>(gridX, gridY);
 
     // the bomb starts ticking as soon as it's dropped
-    bomb->cLifetime = std::make_shared<CLifetime>(BMDefaults::bombLifeTime);
+    bomb->cLifetime = std::make_shared<CLifetime>(bombLifeTime);
+
+    // give the bomb its owner's blast radius
+    bomb->cBlastRadius = std::make_shared<CBlastRadius>(owner->cBlastRadius->br);
 
     // give the player ownership of this bomb; will allow movement through it until leaves contact
     bomb->cOwner = std::make_shared<COwner>(owner->getId());
 
+
+}
+
+
+void Engine::sEndGame() {
 
 }
