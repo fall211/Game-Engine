@@ -1,6 +1,8 @@
 #include <SFML/Graphics.hpp>
 #include <random>
+#include <cstdlib> //for rand
 #include <cmath>
+#include <algorithm> //for std::find (used for searching a vector)
 
 #include <iostream> //just here for debugging purposes :(
 
@@ -18,6 +20,8 @@ void Engine::sInitState() {
     float win_y = m_window.getSize().y;
     float bw = 10.0f; //border width
 
+
+    // TODO: make all this use Engine::sEntityCreator() instead
 
     // Add borders to the window to prevent objects escaping
     auto e0 = m_entityManager->addEntity("Tile");
@@ -43,6 +47,77 @@ void Engine::sInitState() {
     e3->cShape = std::make_shared<CShape>(sf::RectangleShape(sf::Vector2f(bw, win_y-3*bw)));
     e3->cShape->shape.setFillColor(sf::Color::Yellow);
     e3->cBBox = std::make_shared<CBBox>(bw, win_y-3*bw);
+
+
+    // turn the remaining window space into a grid
+    // and fill it with crates and tiles
+    const int rows = 15;
+    const int cols = 25;
+
+    // initialize the grid array
+    std::vector<std::vector<bool>> grid;
+    for (size_t i = 0; i < rows; i++) {
+        std::vector<bool> temp;
+        temp.resize(cols, false);
+        grid.push_back(temp);
+    }
+
+    const float gridX = (win_x - 2 * bw) / cols;
+    const float gridY = (win_y - 2 * bw) / rows;
+
+    // add player to the top left corner
+    auto e_player = m_entityManager->addEntity("Player");
+    e_player->cTransform = std::make_shared<CTransform>(Vec2(bw, bw), Vec2(0, 0));
+    e_player->cShape = std::make_shared<CShape>(sf::RectangleShape(sf::Vector2f(gridX, gridY)));
+    e_player->cShape->shape.setFillColor(sf::Color::Magenta);
+    e_player->cBBox = std::make_shared<CBBox>(gridX, gridY);
+    e_player->cControls = std::make_shared<CControls>();
+
+
+    // set the tiles in fixed locations to prevent unreachable pockets
+    for (size_t i = 0; i < rows; i++) {
+        for (size_t j = 0; j < cols; j++) {
+            if (
+                i > 2 && i < 6 && j > 4 && j < 10
+             || i > 2 && i < 6 && j > 14 && j < 20
+             || i > 8 && i < 12 && j > 4 && j < 10
+             || i > 8 && i < 12 && j > 14 && j < 20
+            ) {
+                auto e = m_entityManager->addEntity("Tile");
+                Vec2 pos = Vec2(bw + j*gridX, bw + i*gridY);
+                Vec2 vel = Vec2(0, 0);
+                e->cTransform = std::make_shared<CTransform>(pos, vel);
+                e->cShape = std::make_shared<CShape>(sf::RectangleShape(sf::Vector2f(gridX, gridY)));
+                e->cShape->shape.setFillColor(sf::Color::Cyan);
+                e->cBBox = std::make_shared<CBBox>(gridX, gridY);
+
+                grid[i][j] = true;
+            }
+        }
+    }
+
+    const int numCrates = 50;
+    size_t i = 0;
+    while (i < numCrates) {
+        int randX = rand() % cols;
+        int randY = rand() % rows;
+
+        if (!grid[randY][randX]) {
+            auto e = m_entityManager->addEntity("Crate");
+            Vec2 pos = Vec2(bw + randX * gridX, bw + randY * gridY);
+            Vec2 vel = Vec2(0, 0);
+            e->cTransform = std::make_shared<CTransform>(pos, vel);
+            e->cShape = std::make_shared<CShape>(sf::RectangleShape(sf::Vector2f(gridX, gridY)));
+            e->cShape->shape.setFillColor(sf::Color::Yellow);
+            e->cBBox = std::make_shared<CBBox>(gridX, gridY);
+
+            grid[randY][randX] = true;
+            i++;
+        }
+    }
+
+
+
 
 
 
@@ -206,36 +281,6 @@ void Engine::sResolveCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entit
     // now return if e0 doesn't represent a player entity
     if (t0 != "Player") return;
 
-    // first handle the physical collision
-    //Vec2 deltaPos  = e0->cTransform->position - e1->cTransform->position;
-    //Vec2 deltaPrev = e0->cTransform->prevPos  - e1->cTransform->prevPos;
-
-
-    //// horizontal collisions
-    //// case 0: right collision
-    //if (deltaPos.x > 0 && deltaPos.x < e1->cBBox->width) {
-    //    e0->cTransform->position.x += e1->cBBox->width - deltaPos.x;
-    //    std::cout << "right" << std::endl;
-    //}
-    //// case 1: left collision
-    //else if (deltaPos.x < 0 && -1.0f*deltaPos.x < e0->cBBox->width) {
-    //    e0->cTransform->position.x -= e0->cBBox->width + deltaPos.x;
-    //    std::cout << "left" << std::endl;
-    //}
-    //// vertical collisions
-    //// case 2: bottom collision
-    //else if (deltaPos.y > 0 && deltaPos.y < e1->cBBox->height) {
-    //    e0->cTransform->position.y += e1->cBBox->height - deltaPos.y;
-    //    std::cout << "bottom" << std::endl;
-    //}
-    //// case 3: top collision
-    //else if (deltaPos.y < 0 && -1.0f*deltaPos.y < e0->cBBox->height) {
-    //    e0->cTransform->position.y -= e0->cBBox->height + deltaPos.y;
-    //    std::cout << "top" << std::endl;
-    //}
-    //else {
-    //    std::cout << "idk" << std::endl;
-    //}
 
     // positions centered on the entity
     Vec2 cf0 = e0->cTransform->position + e0->cBBox->halfSize;
@@ -253,28 +298,13 @@ void Engine::sResolveCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entit
         e1->cBBox->halfSize.y + e0->cBBox->halfSize.y - std::abs(deltaPrev.y)
     );
 
-    //if (overlapPrev.y > 0) {
-    //    e0->cTransform->position.x += overlap.x;
-    //    std::cout << "x " << overlap.x << " " << overlap.y << " " << std::abs(deltaPos.x) << " " << std::abs(deltaPos.y) << std::endl;
-    //}
-    //else if (overlapPrev.x > 0) {
-    //    e0->cTransform->position.y += overlap.y;
-    //    std::cout << "y " << overlap.x << " " << overlap.y << " " << std::abs(deltaPos.x) << " " << std::abs(deltaPos.y) << std::endl;
-    //}
-    //else {
-    //    // overlap from diagonal direction
-    //    // default to snapping horizontally
-    //    e0->cTransform->position.x += overlap.x;
-    //    std::cout << "z " << overlap.x << " " << overlap.y << " " << std::abs(deltaPos.x) << " " << std::abs(deltaPos.y) << std::endl;
-    //}
-
 
     if (std::abs(overlap.x) < std::abs(overlap.y)) {
         e0->cTransform->position.x += EngineMath::sgn(deltaPos.x) * overlap.x;
-        std::cout << "x " << overlap.x << " " << overlap.y << " " << std::abs(deltaPos.x) << " " << std::abs(deltaPos.y) << std::endl;
+        //std::cout << "x " << overlap.x << " " << overlap.y << " " << std::abs(deltaPos.x) << " " << std::abs(deltaPos.y) << std::endl;
     } else {
         e0->cTransform->position.y += EngineMath::sgn(deltaPos.y) * overlap.y;
-        std::cout << "y " << overlap.x << " " << overlap.y << " " << std::abs(deltaPos.x) << " " << std::abs(deltaPos.y) << std::endl;
+        //std::cout << "y " << overlap.x << " " << overlap.y << " " << std::abs(deltaPos.x) << " " << std::abs(deltaPos.y) << std::endl;
     }
 
     // now go over all the possible effects
@@ -293,6 +323,89 @@ void Engine::sResolveCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entit
         e1->destroy();
         return;
     }
+}
 
+
+void Engine::sKeyPressHandler(sf::Event event) {
+    int kv = event.key.code;
+
+    for (auto& e : m_entityManager->getEntities("Player")) {
+        auto v = e->cControls->keybinds;
+        size_t i = 0;
+        while (i < v.size()) {
+            if (v[i] == kv) break;
+            i++;
+        }
+        switch (i) {
+        case 0:
+            e->cTransform->velocity.y = -1.0f;
+            break;
+        case 1:
+            e->cTransform->velocity.x = -1.0f;
+            break;
+        case 2:
+            e->cTransform->velocity.y = 1.0f;
+            break;
+        case 3:
+            e->cTransform->velocity.x = 1.0f;
+            break;
+        case 4:
+            break;
+        case 5:
+            break;
+        case 6:
+            break;
+        case 7:
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+
+void Engine::sKeyReleaseHandler(sf::Event event) {
+    int kv = event.key.code;
+
+    for (auto& e : m_entityManager->getEntities("Player")) {
+        auto v = e->cControls->keybinds;
+        size_t i = 0;
+        while (i < v.size()) {
+            if (v[i] == kv) break;
+            i++;
+        }
+        switch (i) {
+        case 0:
+            e->cTransform->velocity.y = 0.0f;
+            break;
+        case 1:
+            e->cTransform->velocity.x = 0.0f;
+            break;
+        case 2:
+            e->cTransform->velocity.y = 0.0f;
+            break;
+        case 3:
+            e->cTransform->velocity.x = 0.0f;
+            break;
+        case 4:
+            break;
+        case 5:
+            break;
+        case 6:
+            break;
+        case 7:
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+
+void Engine::sMousePressHandler(sf::Event event) {
+
+}
+
+void Engine::sMouseReleaseHandler(sf::Event event) {
 
 }

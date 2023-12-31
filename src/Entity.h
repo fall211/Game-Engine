@@ -22,6 +22,8 @@ class Entity {
         std::shared_ptr<CBBox> cBBox;
         std::shared_ptr<CBCircle> cBCircle;
 
+        std::shared_ptr<CControls> cControls;
+
         std::shared_ptr<CHealth> cHealth;
         std::shared_ptr<CBlastRadius> cBlastRadius;
         std::shared_ptr<CInventory> cInventory;

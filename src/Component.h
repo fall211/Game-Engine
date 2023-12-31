@@ -54,6 +54,28 @@ class CBCircle : public Component {
 };
 
 
+class CControls : public Component {
+public:
+    /**
+    * adds keybind controls to the entity
+    * keybind vector entries have the following effects:
+    * keybind[0] -> up movement
+    * keybind[1] -> left movement
+    * keybind[2] -> down movement
+    * keybind[3] -> right movement
+    * keybind[4] -> buff 1
+    * keybind[5] -> buff 2
+    * keybind[6] -> buff 3
+    * keybind[7] -> buff 4
+    * 
+    * and possibly more to come...
+    **/
+    const std::vector<int> keybinds = { 22, 0, 18, 3, 27, 28, 29, 30 };
+    CControls();
+    CControls(std::vector<int> kb);
+};
+
+
 // components for bomberman
 class CHealth : public Component {
 public:

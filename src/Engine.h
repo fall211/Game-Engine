@@ -26,6 +26,12 @@ public:
 
 
     void sInitState();
+
+
+    void sKeyPressHandler(sf::Event event);
+    void sKeyReleaseHandler(sf::Event event);
+    void sMousePressHandler(sf::Event event);
+    void sMouseReleaseHandler(sf::Event event);
     
 };
 

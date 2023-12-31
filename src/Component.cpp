@@ -26,6 +26,9 @@ CBBox::CBBox(float w, float h)
     , halfSize(Vec2(width/2, height/2)) { Component(); }
 CBCircle::CBCircle(float r) : radius(r) { Component(); }
 
+CControls::CControls() { Component(); }
+CControls::CControls(std::vector<int> kb) : keybinds(kb) { Component(); }
+
 
 // Components for Bomberman
 CHealth::CHealth(int h) : h(h) { Component(); }

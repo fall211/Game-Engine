@@ -26,27 +26,38 @@ int main() {
             if (event.type == sf::Event::Closed) window.close();
 
             if (event.type == sf::Event::KeyPressed) {
+                engine.sKeyPressHandler(event);
 
-                switch(event.key.scancode){
-                    case sf::Keyboard::Scan::Escape:
-                        break;
-                    case sf::Keyboard::Scan::Space:
-                        engine.sEntityCreator();
-                        break;
-                    default:
-                        break;
-                }
+                //std::cout << event.key.code << std::endl;
+
+                //switch(event.key.scancode){
+                //    case sf::Keyboard::Scan::Escape:
+                //        break;
+                //    case sf::Keyboard::Scan::Space:
+                //        //engine.sEntityCreator();
+                //        break;
+                //    default:
+                //        break;
+                //}
+            }
+            if (event.type == sf::Event::KeyReleased) {
+                engine.sKeyReleaseHandler(event);
             }
             if (event.type == sf::Event::MouseButtonPressed){
-                if (event.mouseButton.button == sf::Mouse::Left){
+                engine.sMousePressHandler(event);
+                /*if (event.mouseButton.button == sf::Mouse::Left){
                     std::string msg = "left";
                     debug(msg);
                 }
                 if (event.mouseButton.button == sf::Mouse::Right){
                     std::string msg = "right";
                     debug(msg);
-                }
+                }*/
             }
+            if (event.type == sf::Event::MouseButtonReleased) {
+                engine.sMouseReleaseHandler(event);
+            }
+            
         }
 
         window.clear(sf::Color::Black);
