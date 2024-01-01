@@ -132,8 +132,4 @@ public:
     CBuff(int b);
 };
 
-
-// TODO:
-// move all the buffs from BMEntity.h to here as components
-
 #endif // COMPONENT_H
