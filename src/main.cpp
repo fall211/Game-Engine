@@ -11,6 +11,17 @@ void debug(std::string& message);
 int main() {
     sf::RenderWindow window(sf::VideoMode(1280, 720), "Game Engine Test");
     window.setFramerateLimit(120);
+
+
+    //// load textures
+    //sf::Texture tTNT, tStar, tPBomb, tPArrow;
+
+    //if (!tTNT.loadFromFile("resources/tnt.png")) return 1;
+    //if (!tStar.loadFromFile("resources/star.png")) return 1;
+    //if (!tPBomb.loadFromFile("resources/plusbomb.png")) return 1;
+    //if (!tPArrow.loadFromFile("resources/greenplusarrow.png")) return 1;
+
+
     Engine engine = Engine(window);
 
 

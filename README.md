@@ -8,12 +8,16 @@ ECS game engine made in c++ with graphics help from sfml.
 
 
 ### Engine
+- separate most of Bomberman mechanics into a separate class, such as Game
+- Game probably inhertits Engine
 - handle input capturing in sInput() instead of in whatever order it happens right now in main.cpp
-
+- improve movement (1 wide corridors require pixel-perfect alignment)
+	- allow player to snap into place if overlap is small enough in direction of motion
 
 ### Misc/Rendering
 - change the order in which entities are rendered (ie implement some ad hoc Z index for each entity/tag)
 - show FPS
+- show player inventories
 
 ### Component
 - move all the buffs from BMentity.h to component.h

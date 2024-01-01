@@ -17,22 +17,30 @@ Engine::Engine(sf::RenderWindow& windowin) : m_window(windowin) {
 
 
     // initialize the grid array
+    // this just keeps track of which grid points are occupied by a non-player object
+    // mainly useful for determining how far Flames go when bombs explode
     for (size_t i = 0; i < rows; i++) {
         std::vector<bool> temp;
         temp.resize(cols, false);
         grid.push_back(temp);
     }
 
-
+    // some lazy default colors for the various entities
     colorDefaults["Player"] = sf::Color::Magenta;
     colorDefaults["Tile"]   = sf::Color::Cyan;
-    colorDefaults["Crate"]  = sf::Color::Color(88, 57, 39);
+    colorDefaults["Crate"]  = sf::Color::Color(88, 57, 39); //brown
     colorDefaults["Bomb"]   = sf::Color::Black;
     colorDefaults["Flame"]  = sf::Color::Yellow;
     colorDefaults["Drop"]   = sf::Color::Green;
 }
 
 void Engine::sInitState() {
+    /**
+    * Initializes the Bomberman game area
+    * - Creates 1 player
+    * - Creates tiles: 1 tile thick border so that entities can't escape; and fixed-shape obstacles
+    * - Creates a random distribution of Crates that the player(s) can break to obtain drops/buffs
+    **/
     float win_x = m_window.getSize().x;
     float win_y = m_window.getSize().y;
 
@@ -43,9 +51,6 @@ void Engine::sInitState() {
 
     // add player to the top left corner
     auto e_player = sEntityCreator("Player", Vec2(gridX, gridY), Vec2(0, 0), gridX, gridY);
-    e_player->cBlastRadius = std::make_shared<CBlastRadius>(2);
-    e_player->cControls = std::make_shared<CControls>();
-    e_player->cHealth = std::make_shared<CHealth>(playerHealth);
 
 
     // set the tiles in fixed locations to prevent unreachable pockets
@@ -80,11 +85,6 @@ void Engine::sInitState() {
                 Vec2(0, 0),
                 gridX, gridY);
             e->cInventory = std::make_shared<CInventory>();
-            // randomize whether the crate gets a drop
-            if (rand() % 100 < dropRate) {
-                //e->addToInventory(0, rand() % numBuffs); //randomizes which buff to add to crate
-                e->cInventory->inv.push_back(rand() % numBuffs);
-            }
 
             grid[randY][randX] = true;
             i++;
@@ -96,7 +96,6 @@ void Engine::mainLoop(){
     m_entityManager->update();
     sLifetime(m_entityManager->getEntities());
     // sInput(m_entityManager->getEntities());
-    //sEntityCreator();
     sMovement(m_entityManager->getEntities());
     sCollisionHandler(m_entityManager->getEntities());
     sRender(m_entityManager->getEntities());
@@ -135,8 +134,24 @@ std::shared_ptr<Entity> Engine::sEntityCreator(std::string tag, Vec2 pos, Vec2 v
 
 
     // special cases
-    if (tag == "Player") numPlayers++;
+    if (tag == "Player") {
+        e->cBlastRadius = std::make_shared<CBlastRadius>(2);
+        e->cControls = std::make_shared<CControls>();
+        e->cHealth = std::make_shared<CHealth>(playerHealth);
 
+        numPlayers++;
+    }
+    else if (tag == "Crate") {
+        // randomize whether the crate gets a drop
+        if (rand() % 100 < dropRate) {
+            //e->addToInventory(0, rand() % numBuffs); //randomizes which buff to add to crate
+            e->cInventory->inv.push_back(rand() % numBuffs);
+        }
+    }
+    else if (tag == "Flame") {
+        e->cLifetime = std::make_shared<CLifetime>(flameLifeTime);
+        e->cDamage = std::make_shared<CDamage>(flameDamage);
+    }
 
     return e;
 }
@@ -193,8 +208,6 @@ void Engine::sRemoveEntity(std::shared_ptr<Entity> e) {
             if (j_nearest + i >= cols) break;
             Vec2 pos = Vec2((j_nearest + i)* gridX, i_nearest * gridY);
             auto e1 = sEntityCreator("Flame", pos, Vec2(0, 0), gridX, gridY);
-            e1->cLifetime = std::make_shared<CLifetime>(flameLifeTime);
-            e1->cDamage = std::make_shared<CDamage>(flameDamage);
             if (grid[i_nearest][j_nearest + i]) break;
             grid[i_nearest][j_nearest + i] = true;
         }
@@ -203,8 +216,6 @@ void Engine::sRemoveEntity(std::shared_ptr<Entity> e) {
             if (j_nearest - i < 0) break;
             Vec2 pos = Vec2((j_nearest - i)* gridX, i_nearest * gridY);
             auto e1 = sEntityCreator("Flame", pos, Vec2(0, 0), gridX, gridY);
-            e1->cLifetime = std::make_shared<CLifetime>(flameLifeTime);
-            e1->cDamage = std::make_shared<CDamage>(flameDamage);
             if (grid[i_nearest][j_nearest - i]) break;
             grid[i_nearest][j_nearest - i] = true;
         }
@@ -213,8 +224,6 @@ void Engine::sRemoveEntity(std::shared_ptr<Entity> e) {
             if (i_nearest + i >= rows) break;
             Vec2 pos = Vec2(j_nearest * gridX, (i_nearest + i) * gridY);
             auto e1 = sEntityCreator("Flame", pos, Vec2(0, 0), gridX, gridY);
-            e1->cLifetime = std::make_shared<CLifetime>(flameLifeTime);
-            e1->cDamage = std::make_shared<CDamage>(flameDamage);
             if (grid[i_nearest + i][j_nearest]) break;
             grid[i_nearest + i][j_nearest] = true;
         }
@@ -222,8 +231,6 @@ void Engine::sRemoveEntity(std::shared_ptr<Entity> e) {
             if (i_nearest - i < 0) break;
             Vec2 pos = Vec2(j_nearest * gridX, (i_nearest - i) * gridY);
             auto e1 = sEntityCreator("Flame", pos, Vec2(0, 0), gridX, gridY);
-            e1->cLifetime = std::make_shared<CLifetime>(flameLifeTime);
-            e1->cDamage = std::make_shared<CDamage>(flameDamage);
             if (grid[i_nearest - i][j_nearest]) break;
             grid[i_nearest - i][j_nearest] = true;
         }
