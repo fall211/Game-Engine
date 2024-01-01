@@ -15,9 +15,14 @@ class Engine {
     // *** BOMBERMAN PARAMETERS ***
     const float playerSpeed = 1.0f;
     const int playerHealth = 100;
-    const float bombLifeTime = 3.0f;
+    const float bombLifeTime = 2.0f;
     const float flameLifeTime = 0.5f;
     const float flameDamage = 1000.0f;
+    const int dropRate = 100; // dropRate% chance for a crate to drop something
+
+    // how many different buffs there are in the game
+    // TODO: this would probably work better as an enum
+    const int numBuffs = 5;
 
     std::map<std::string, sf::Color> colorDefaults;
 

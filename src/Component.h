@@ -111,6 +111,7 @@ public:
 class CInventory : public Component {
 public:
     std::vector<int> inv = {};
+    CInventory();
     CInventory(std::vector<int> i);
 };
 

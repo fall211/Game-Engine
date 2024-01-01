@@ -62,9 +62,23 @@ int main() {
 
         window.clear(sf::Color::Color(114,114,144));
         engine.mainLoop();
+
+
+        //// draw FPS to the top right corner of the window
+        //std::string fps = "FPS: " + std::to_string(1.0f/(engine.deltaTime));
+        ////sf::Font arialFont;
+        ////if (!arialFont.loadFromFile("arial.ttf")) return 1;
+        ////sf::Text fpsText(fps, arialFont, 14);
+        //sf::Text fpsText;
+        //fpsText.setString(fps);
+        //fpsText.setCharacterSize(50);
+        ////fpsText.setFillColor(sf::Color::Black);
+        //fpsText.setPosition(600, 300);
+        //window.draw(fpsText);
+
         window.display();
-        //std::string msg = "FPS: " + std::to_string(1.0f/(engine.deltaTime));
-        //debug(msg);
+        
+        //debug(fps);
 
     }
 

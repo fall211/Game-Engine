@@ -79,6 +79,12 @@ void Engine::sInitState() {
                 Vec2(randX * gridX, randY * gridY),
                 Vec2(0, 0),
                 gridX, gridY);
+            e->cInventory = std::make_shared<CInventory>();
+            // randomize whether the crate gets a drop
+            if (rand() % 100 < dropRate) {
+                //e->addToInventory(0, rand() % numBuffs); //randomizes which buff to add to crate
+                e->cInventory->inv.push_back(rand() % numBuffs);
+            }
 
             grid[randY][randX] = true;
             i++;
@@ -183,48 +189,60 @@ void Engine::sRemoveEntity(std::shared_ptr<Entity> e) {
     if (t == "Bomb") {
         // spawn flames, detonate all connected bombs, break all connected crates
         // for now, only spawns the flames; the flames will set off bombs and break crates on the next frame
-        for (int i = 0; i < e->cBlastRadius->br; i++) {
+        for (int i = 0; i < e->cBlastRadius->br; i++) { // right check
             if (j_nearest + i >= cols) break;
             Vec2 pos = Vec2((j_nearest + i)* gridX, i_nearest * gridY);
-            auto e = sEntityCreator("Flame", pos, Vec2(0, 0), gridX, gridY);
-            e->cLifetime = std::make_shared<CLifetime>(flameLifeTime);
-            e->cDamage = std::make_shared<CDamage>(flameDamage);
+            auto e1 = sEntityCreator("Flame", pos, Vec2(0, 0), gridX, gridY);
+            e1->cLifetime = std::make_shared<CLifetime>(flameLifeTime);
+            e1->cDamage = std::make_shared<CDamage>(flameDamage);
             if (grid[i_nearest][j_nearest + i]) break;
+            grid[i_nearest][j_nearest + i] = true;
         }
-        for (int i = 0; i < e->cBlastRadius->br; i++) {
+        //this and the subsequent for loops start at i=1 to avoid creating 4 explosions on the bomb square
+        for (int i = 1; i < e->cBlastRadius->br; i++) { // left check
             if (j_nearest - i < 0) break;
             Vec2 pos = Vec2((j_nearest - i)* gridX, i_nearest * gridY);
-            auto e = sEntityCreator("Flame", pos, Vec2(0, 0), gridX, gridY);
-            e->cLifetime = std::make_shared<CLifetime>(flameLifeTime);
-            e->cDamage = std::make_shared<CDamage>(flameDamage);
+            auto e1 = sEntityCreator("Flame", pos, Vec2(0, 0), gridX, gridY);
+            e1->cLifetime = std::make_shared<CLifetime>(flameLifeTime);
+            e1->cDamage = std::make_shared<CDamage>(flameDamage);
             if (grid[i_nearest][j_nearest - i]) break;
+            grid[i_nearest][j_nearest - i] = true;
         }
         
-        for (int i = 0; i < e->cBlastRadius->br; i++) {
+        for (int i = 1; i < e->cBlastRadius->br; i++) { // down check
             if (i_nearest + i >= rows) break;
             Vec2 pos = Vec2(j_nearest * gridX, (i_nearest + i) * gridY);
-            auto e = sEntityCreator("Flame", pos, Vec2(0, 0), gridX, gridY);
-            e->cLifetime = std::make_shared<CLifetime>(flameLifeTime);
-            e->cDamage = std::make_shared<CDamage>(flameDamage);
+            auto e1 = sEntityCreator("Flame", pos, Vec2(0, 0), gridX, gridY);
+            e1->cLifetime = std::make_shared<CLifetime>(flameLifeTime);
+            e1->cDamage = std::make_shared<CDamage>(flameDamage);
             if (grid[i_nearest + i][j_nearest]) break;
+            grid[i_nearest + i][j_nearest] = true;
         }
-        for (int i = 0; i < e->cBlastRadius->br; i++) {
+        for (int i = 1; i < e->cBlastRadius->br; i++) { // up check
             if (i_nearest - i < 0) break;
             Vec2 pos = Vec2(j_nearest * gridX, (i_nearest - i) * gridY);
-            auto e = sEntityCreator("Flame", pos, Vec2(0, 0), gridX, gridY);
-            e->cLifetime = std::make_shared<CLifetime>(flameLifeTime);
-            e->cDamage = std::make_shared<CDamage>(flameDamage);
+            auto e1 = sEntityCreator("Flame", pos, Vec2(0, 0), gridX, gridY);
+            e1->cLifetime = std::make_shared<CLifetime>(flameLifeTime);
+            e1->cDamage = std::make_shared<CDamage>(flameDamage);
             if (grid[i_nearest - i][j_nearest]) break;
+            grid[i_nearest - i][j_nearest] = true;
         }
 
 
     }
-    else if (t == "Crate") {
+    else if (t == "Crate" && e->cInventory->inv.size()) { //second condition checks that the crate has something to drop
+        // create a drop at the crate location
+        auto e1 = sEntityCreator("Drop", Vec2(j_nearest*gridX, i_nearest*gridY), Vec2(0, 0), gridX, gridY);
+        e1->cBuff = std::make_shared<CBuff>(e->cInventory->inv[0]);
 
+        grid[i_nearest][j_nearest] = true;
+
+        std::cout << "Created drop at " << j_nearest << " " << i_nearest << std::endl;
     }
     else if (t == "Tile") {
         // this case should be rare; only occurs when an atom bomb detones
         // or maybe when using a level editor?
+
     }
 
     // TODO: special bombs
@@ -314,6 +332,7 @@ void Engine::sResolveCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entit
     * Player - Bomb
     * Player - Flame
     * Player - Drop
+    * Flame - Crate
     * Flame - Drop
     * TODO: Flame - Bomb --> will set off the bomb
     **/
@@ -323,9 +342,9 @@ void Engine::sResolveCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entit
     
     if (t0 == "Tile") return;
 
-    // handle the only possibility that doesn't include a player
-    if (t0 == "Flame" && t1 == "Drop") {
-        e1->destroy();
+    // handle the possibilities that doesn't include a player
+    if (t0 == "Flame" && (/**t1 == "Drop" ||**/ t1 == "Crate" || t1 == "Bomb")) {
+        sRemoveEntity(e1);
         return;
     }
 
@@ -336,9 +355,7 @@ void Engine::sResolveCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entit
     if (t1 == "Flame") {
         e0->cHealth->h -= (int)e1->cDamage->dmg;
         if (e0->cHealth->h <= 0) {
-            // this should probably do something more than just deleting the player
-            // eg end the game
-            e0->destroy();
+            sRemoveEntity(e0);
         }
         return;
     }
@@ -376,7 +393,8 @@ void Engine::sResolveCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entit
     // now go over all the possible effects
     if (t1 == "Drop") {
         e0->addToInventory(e1->cBuff->buffId, 1);
-        e1->destroy();
+        std::cout << "Picked up " << e1->cBuff->buffId << std::endl;
+        sRemoveEntity(e1);
         return;
     }
 }
@@ -512,5 +530,6 @@ void Engine::sSpawnBomb(std::shared_ptr<Entity> owner) {
 
 
 void Engine::sEndGame() {
-
+    std::cout << "Game Over!" << std::endl;
+    m_window.close();
 }

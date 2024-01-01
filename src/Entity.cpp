@@ -12,11 +12,16 @@ void Entity::destroy() { m_active = false; }
 
 void Entity::addToInventory(int idx, int val) {
 	if (!cInventory) return;
-	cInventory->inv[idx] += val;
+	if (cInventory->inv.size() <= idx) {
+		cInventory->inv.push_back(val);
+	}
+	else {
+		cInventory->inv[idx] += val;
+	}
 }
 
 void Entity::removeFromInventory(int idx, int val) {
-	if (!cInventory) return;
+	if (!cInventory || cInventory->inv.size() <= idx) return;
 	cInventory->inv[idx] = std::max(0, cInventory->inv[idx]-val);
 }
 

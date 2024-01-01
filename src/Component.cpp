@@ -36,6 +36,7 @@ CControls::CControls(std::vector<int> kb) : keybinds(kb) { Component(); }
 // Components for Bomberman
 CHealth::CHealth(int h) : h(h) { Component(); }
 CBlastRadius::CBlastRadius(int b) : br(b) { Component(); }
+CInventory::CInventory() { Component(); }
 CInventory::CInventory(std::vector<int> i) : inv(i) { Component(); }
 CDamage::CDamage(float d) : dmg(d) { Component(); }
 CBuff::CBuff(int d) : buffId(d) { Component(); }
