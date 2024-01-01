@@ -9,67 +9,40 @@ void debug(std::string& message);
 
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(1280, 720), "Game Engine Test");
-    window.setFramerateLimit(120);
 
 
-    //// load textures
-    //sf::Texture tTNT, tStar, tPBomb, tPArrow;
+    //// TESTS
+    //sf::Texture t;
+    //if (!t.loadFromFile("resources/tnt.png")) {
+    //    std::cout << "not found" << std::endl;
+    //    return 1;
+    //}
+    //sf::RenderWindow w1(sf::VideoMode(1280, 720), "Bomberman");
+    //sf::Sprite s;
+    //s.setTexture(t);
 
-    //if (!tTNT.loadFromFile("resources/tnt.png")) return 1;
-    //if (!tStar.loadFromFile("resources/star.png")) return 1;
-    //if (!tPBomb.loadFromFile("resources/plusbomb.png")) return 1;
-    //if (!tPArrow.loadFromFile("resources/greenplusarrow.png")) return 1;
+    //auto sp = std::make_shared<sf::Texture>(t);
 
+    //std::cout << sp << std::endl;
+
+    //while (w1.isOpen()) {
+    //    w1.clear();
+    //    w1.draw(s);
+    //    w1.display();
+    //}
+
+
+    sf::RenderWindow window(sf::VideoMode(1280, 720), "Bomberman");
+    window.setFramerateLimit(60);
 
     Engine engine = Engine(window);
-
-
-    engine.sInitState();
+    // start the game in the menu scene
+    engine.changeScene("MENU", std::make_shared<SceneMenu>(std::make_shared<Engine>(engine)));
 
     sf::Clock clock = sf::Clock();
 
     while (window.isOpen()){
-        engine.deltaTime = clock.restart().asSeconds();
-
-        sf::Event event;
-        while (window.pollEvent(event)){
-            if (event.type == sf::Event::Closed) window.close();
-
-            if (event.type == sf::Event::KeyPressed) {
-                engine.sKeyPressHandler(event);
-
-                std::cout << event.key.code << std::endl;
-
-                //switch(event.key.scancode){
-                //    case sf::Keyboard::Scan::Escape:
-                //        break;
-                //    case sf::Keyboard::Scan::Space:
-                //        //engine.sEntityCreator();
-                //        break;
-                //    default:
-                //        break;
-                //}
-            }
-            if (event.type == sf::Event::KeyReleased) {
-                engine.sKeyReleaseHandler(event);
-            }
-            if (event.type == sf::Event::MouseButtonPressed){
-                engine.sMousePressHandler(event);
-                /*if (event.mouseButton.button == sf::Mouse::Left){
-                    std::string msg = "left";
-                    debug(msg);
-                }
-                if (event.mouseButton.button == sf::Mouse::Right){
-                    std::string msg = "right";
-                    debug(msg);
-                }*/
-            }
-            if (event.type == sf::Event::MouseButtonReleased) {
-                engine.sMouseReleaseHandler(event);
-            }
-            
-        }
+        //engine.deltaTime = clock.restart().asSeconds();
 
         window.clear(sf::Color::Color(114,114,144));
         engine.mainLoop();

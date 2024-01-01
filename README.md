@@ -18,6 +18,7 @@ ECS game engine made in c++ with graphics help from sfml.
 - change the order in which entities are rendered (ie implement some ad hoc Z index for each entity/tag)
 - show FPS
 - show player inventories
+- different drop rates for the various buffs (eg bomb capacity and arm length should be far more common)
 
 ### Component
 - move all the buffs from BMentity.h to component.h
