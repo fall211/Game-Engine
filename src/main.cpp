@@ -35,17 +35,21 @@ int main() {
     sf::RenderWindow window(sf::VideoMode(1280, 720), "Bomberman");
     window.setFramerateLimit(60);
 
-    Engine engine = Engine(window);
+    //Engine engine = Engine(window);
+    auto engine = std::make_shared<Engine>(window);
+
     // start the game in the menu scene
-    engine.changeScene("MENU", std::make_shared<SceneMenu>(std::make_shared<Engine>(engine)));
+    //engine->changeScene(0, std::make_shared<SceneMenu>(engine));
+
+    engine->changeScene(0, std::make_shared<SceneGame>(engine));
 
     sf::Clock clock = sf::Clock();
 
     while (window.isOpen()){
-        //engine.deltaTime = clock.restart().asSeconds();
+        engine->deltaTime = clock.restart().asSeconds();
 
         window.clear(sf::Color::Color(114,114,144));
-        engine.mainLoop();
+        engine->mainLoop();
 
 
         //// draw FPS to the top right corner of the window

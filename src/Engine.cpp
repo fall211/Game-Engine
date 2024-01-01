@@ -15,11 +15,20 @@
 #include "Assets.h"
 #include "Scene.h"
 
+//unsigned int Engine::m_currentScene = 0;
+
 Engine::Engine(sf::RenderWindow& windowin) : m_window(windowin) {
+    std::cout << "engine constructed" << std::endl;
+
     m_entityManager = std::make_shared<EntityManager>();
     m_assets = std::make_shared<Assets>();
-    m_scenes = std::map<std::string, std::shared_ptr<Scene>>();
-    std::cout << "map size = " << m_scenes.size() << std::endl;
+    //m_scenes = std::map<char, std::shared_ptr<Scene>>();
+    m_scenes = {};
+
+    //m_currentScene = 0;
+    
+
+    //std::cout << "map size = " << m_scenes.size() << std::endl;
 
     //// load textures
     m_assets->addTexture("Bomb", "resources/tnt.png");
@@ -37,6 +46,7 @@ void Engine::mainLoop(){
     // does the order of these matter?
     sUserInput();
 //    std::cout << m_currentScene << " " << currentScene()->toString() << std::endl;
+    //std::cout << m_currentScene << std::endl;
     currentScene()->update();
 }
 
@@ -177,13 +187,17 @@ void Engine::sSpawnBomb(std::shared_ptr<Entity> owner) {
 void Engine::update() {}
 void Engine::quit() {}
 
-void Engine::changeScene(std::string s, std::shared_ptr<Scene> sc) {
-    std::cout << "changed active scene to " << s << ":" << sc->toString() << std::endl;
-    m_currentScene = s;
-    m_scenes.insert(std::pair<std::string, std::shared_ptr<Scene>>(s, sc));
-    std::cout << "current scene = " << m_currentScene << std::endl;
+void Engine::changeScene(unsigned int i, std::shared_ptr<Scene> sc) {
+    if (i >= m_scenes.size()) {
+        m_scenes.push_back(sc);
+    }
+    std::cout << "size " << m_scenes.size() << " active " << i << " " << std::endl;
+    m_currentScene = i;
+    //setActiveScene(i);
+    std::cout << "scene now " << m_currentScene << " " << std::endl;
+
+    //m_currentScene = s;
     //m_scenes[s] = sc;
-    std::cout << "map size = " << m_scenes.size() << std::endl;
 }
 
 std::shared_ptr<Assets> Engine::getAssets() { return m_assets; }
@@ -224,4 +238,10 @@ void Engine::sUserInput() {
             continue;
         }
     }
+}
+
+
+
+void Engine::setActiveScene(unsigned int i) {
+    m_currentFrame = i;
 }

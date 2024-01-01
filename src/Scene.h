@@ -13,13 +13,17 @@ class Engine;
 #include "Action.h"
 
 class Scene {
-public:
+protected:
 	std::shared_ptr<Engine> m_game;
 	std::shared_ptr<EntityManager> m_entityManager;
-	int currentFrame;
 	std::map<int, std::string> m_actionMap;
+
+	Scene(std::shared_ptr<Engine> g);
+public:
+	int currentFrame;
 	bool paused;
 	bool hasEnded;
+
 	virtual void update() = 0;
 	virtual void sDoAction(const Action& a) = 0;
 	virtual void sRender() = 0;
@@ -32,6 +36,8 @@ public:
 	virtual void doAction(const Action& a);
 	virtual void registerAction(int kc, std::string a);
 	virtual std::map<int, std::string> getActionMap();
+
+	virtual ~Scene();
 };
 
 class SceneMenu : public Scene {
@@ -44,9 +50,9 @@ public:
 
 	void init();
 
-	void update();
-	void sDoAction(const Action& a);
-	void sRender();
+	void update() override;
+	void sDoAction(const Action& a) override;
+	void sRender() override;
 
 
 	std::string toString();
@@ -83,10 +89,8 @@ class SceneGame : public Scene {
 public:
 	SceneGame(std::shared_ptr<Engine> game);
 
-	float deltaTime = 0.0f;
-
 	void init();
-	void update();
+	void update() override;
 
 
 	std::string toString();
@@ -95,13 +99,13 @@ public:
 	void sAnimation();
 	void sMovement();
 	void sLifetime();
-	void sRender();
+	void sRender() override;
 
 	void sCollisionHandler(EntityList& entities);
 	bool isBBoxCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entity> e1);
 	void sResolveCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entity> e1);
 
-	void sDoAction(const Action& a);
+	void sDoAction(const Action& a) override;
 	void sDebug();
 
 	void togglePause();

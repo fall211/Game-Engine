@@ -5,6 +5,12 @@
 
 #include <iostream>
 
+Scene::Scene(std::shared_ptr<Engine> g) : m_game(g) {
+	m_entityManager = std::make_shared<EntityManager>();
+	m_actionMap = std::map<int, std::string>();
+}
+Scene::~Scene() { } // there shouldn't be any pointers for this to delete
+
 void Scene::simulate(int i) {}
 void Scene::doAction(const Action& a) {}
 void Scene::registerAction(int kc, std::string a) {
@@ -20,10 +26,8 @@ std::map<int, std::string> Scene::getActionMap() {
 
 // *** START MENU SCENE ***
 
-SceneMenu::SceneMenu(std::shared_ptr<Engine> game) {
-	m_game = game;
-	m_entityManager = std::make_shared<EntityManager>();
-	m_actionMap = std::map<int, std::string>();
+SceneMenu::SceneMenu(std::shared_ptr<Engine> game)
+	: Scene(game) {
 
 	// load font
 	if (!arialF.loadFromFile("fonts/arial.ttf")) throw 404;
@@ -74,7 +78,7 @@ void SceneMenu::sDoAction(const Action& a) {
 	else if (a.name() == "SELECT") {
 		switch (activeItem) {
 		case 0:
-			m_game->changeScene("PLAY", std::make_shared<SceneGame>(m_game));
+			m_game->changeScene(0, std::make_shared<SceneGame>(m_game));
 			break;
 		case 1:
 			// TODO: allow user to edit keybindings
@@ -128,13 +132,8 @@ void SceneMenu::sRender() {
 
 // *** BOMBERMAN ***
 
-SceneGame::SceneGame(std::shared_ptr<Engine> game) {
-	std::cout << "game scene started" << std::endl;
-	game->window().clear();
-
-	m_game = game;
-	m_entityManager = std::make_shared<EntityManager>();
-	m_actionMap = std::map<int, std::string>();
+SceneGame::SceneGame(std::shared_ptr<Engine> game)
+	: Scene(game) {
 
 	init();
 }
@@ -235,7 +234,7 @@ void SceneGame::update() {
 	sLifetime();
 	sMovement();
 	sCollisionHandler(m_entityManager->getEntities());
-	std::cout << "rendering game" << std::endl;
+	//std::cout << "rendering game" << std::endl;
 	sRender();
 	//m_currentFrame++;
 }
@@ -254,9 +253,10 @@ void SceneGame::sMovement() {
 }
 
 void SceneGame::sLifetime() {
+	//std::cout << m_game->deltaTime << std::endl;
 	for (auto& e : m_entityManager->getEntities()) {
 		if (e->cLifetime) {
-			e->cLifetime->lifetime -= deltaTime;
+			e->cLifetime->lifetime -= m_game->deltaTime;
 			if (e->cLifetime->lifetime <= 0) {
 				sRemoveEntity(e);
 			}
@@ -479,6 +479,7 @@ std::shared_ptr<Entity> SceneGame::sEntityCreator(std::string tag, Vec2 pos, Vec
 		e->cBlastRadius = std::make_shared<CBlastRadius>(2);
 		e->cControls = std::make_shared<CControls>();
 		e->cHealth = std::make_shared<CHealth>(playerHealth);
+		e->cInventory = std::make_shared<CInventory>();
 
 		numPlayers++;
 	}
@@ -614,7 +615,8 @@ void SceneGame::sSpawnBomb(std::shared_ptr<Entity> owner) {
 }
 
 void SceneGame::sEndGame() {
-	m_game->changeScene("MENU", std::make_shared<SceneMenu>(m_game));
+	std::cout << "ending game" << std::endl;
+	m_game->changeScene(1, std::make_shared<SceneMenu>(m_game));
 }
 
 
