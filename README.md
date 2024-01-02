@@ -14,6 +14,11 @@ ECS game engine made in c++ with graphics help from sfml.
 - improve movement (1 wide corridors require pixel-perfect alignment)
 	- allow player to snap into place if overlap is small enough in direction of motion
 
+
+### Scenes
+- implement keybinding modification
+- implement help (info) button
+
 ### Misc/Rendering
 - change the order in which entities are rendered (ie implement some ad hoc Z index for each entity/tag)
 - show FPS
@@ -31,3 +36,4 @@ ECS game engine made in c++ with graphics help from sfml.
 - bomb size becomes too large if window is resized
 - drops get deleted by flame on the next flame because flames linger for 0.5s after explosion
 	- temporary fix: flame-drop collisions are disabled
+- scene switching does not always restart the game properly

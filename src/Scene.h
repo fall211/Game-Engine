@@ -20,9 +20,9 @@ protected:
 
 	Scene(std::shared_ptr<Engine> g);
 public:
-	int currentFrame;
-	bool paused;
-	bool hasEnded;
+	int currentFrame = 0;
+	bool paused = false;
+	bool hasEnded = false;
 
 	virtual void update() = 0;
 	virtual void sDoAction(const Action& a) = 0;
@@ -60,11 +60,11 @@ public:
 
 class SceneGame : public Scene {
 	//std::string levelPath; // some weird thing from lec10
-	std::shared_ptr<Entity> player;
+	//std::shared_ptr<Entity> player;
 	//PlayerConfig playerConfig; // ??
 
 	// *** BOMBERMAN PARAMETERS ***
-	const float playerSpeed = 1.0f;
+	const float playerSpeed = 3.0f;
 	const int playerHealth = 100;
 	const float bombLifeTime = 2.0f;
 	const float flameLifeTime = 0.5f;

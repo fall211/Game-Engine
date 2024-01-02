@@ -8,7 +8,7 @@ EntityManager::EntityManager() {
 
 void EntityManager::update(){
     // add new entities
-    for (auto e : m_entitiesToAdd){
+    for (auto& e : m_entitiesToAdd){
         m_entities.push_back(e);
         m_entityMap[e->getTag()].push_back(e);
     }

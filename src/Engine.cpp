@@ -191,10 +191,10 @@ void Engine::changeScene(unsigned int i, std::shared_ptr<Scene> sc) {
     if (i >= m_scenes.size()) {
         m_scenes.push_back(sc);
     }
-    std::cout << "size " << m_scenes.size() << " active " << i << " " << std::endl;
+    //std::cout << "size " << m_scenes.size() << " active " << i << " " << std::endl;
     m_currentScene = i;
     //setActiveScene(i);
-    std::cout << "scene now " << m_currentScene << " " << std::endl;
+    //std::cout << "scene now " << m_currentScene << " " << std::endl;
 
     //m_currentScene = s;
     //m_scenes[s] = sc;

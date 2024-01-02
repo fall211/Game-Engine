@@ -4,6 +4,7 @@
 #include "EngineMath.h"
 
 #include <iostream>
+#include <stdlib.h>
 
 Scene::Scene(std::shared_ptr<Engine> g) : m_game(g) {
 	m_entityManager = std::make_shared<EntityManager>();
@@ -32,15 +33,15 @@ SceneMenu::SceneMenu(std::shared_ptr<Engine> game)
 	// load font
 	if (!arialF.loadFromFile("fonts/arial.ttf")) throw 404;
 
-	init();
-}
-
-void SceneMenu::init() {
 	// keybindings
 	registerAction(sf::Keyboard::Up, "UP");
 	registerAction(sf::Keyboard::Down, "DOWN");
 	registerAction(sf::Keyboard::Enter, "SELECT");
 
+	init();
+}
+
+void SceneMenu::init() {
 	// initialize the option buttons
 	float win_x = m_game->window().getSize().x;
 	float win_y = m_game->window().getSize().y;
@@ -78,7 +79,8 @@ void SceneMenu::sDoAction(const Action& a) {
 	else if (a.name() == "SELECT") {
 		switch (activeItem) {
 		case 0:
-			m_game->changeScene(0, std::make_shared<SceneGame>(m_game));
+			//m_game->changeScene(0, std::make_shared<SceneGame>(m_game));
+			m_game->changeScene(0, std::shared_ptr<SceneGame>(new SceneGame(m_game)));
 			break;
 		case 1:
 			// TODO: allow user to edit keybindings
@@ -100,11 +102,9 @@ void SceneMenu::sRender() {
 			m_game->window().draw(e->cShape->shape);
 		}
 	}
-
 	
 	float win_x = m_game->window().getSize().x;
 	float win_y = m_game->window().getSize().y;
-
 	float dx = win_x / 3;
 	float dy = win_y / 9;
 
@@ -128,17 +128,11 @@ void SceneMenu::sRender() {
 	}
 }
 
-
-
 // *** BOMBERMAN ***
 
 SceneGame::SceneGame(std::shared_ptr<Engine> game)
 	: Scene(game) {
 
-	init();
-}
-
-void SceneGame::init() {
 	// register keybindings
 	registerAction(sf::Keyboard::W, "UP");
 	registerAction(sf::Keyboard::A, "LEFT");
@@ -155,16 +149,6 @@ void SceneGame::init() {
 	registerAction(sf::Keyboard::P, "PAUSE");
 	registerAction(sf::Keyboard::Escape, "QUIT");
 
-
-	// initialize the grid array
-	// this just keeps track of which grid points are occupied by a non-player object
-	// mainly useful for determining how far Flames go when bombs explode
-	for (size_t i = 0; i < rows; i++) {
-		std::vector<bool> temp;
-		temp.resize(cols, false);
-		grid.push_back(temp);
-	}
-
 	// some lazy default colors for the various entities
 	colorDefaults["Player"] = sf::Color::Magenta;
 	colorDefaults["Tile"] = sf::Color::Cyan;
@@ -172,6 +156,36 @@ void SceneGame::init() {
 	colorDefaults["Bomb"] = sf::Color::Black;
 	colorDefaults["Flame"] = sf::Color::Yellow;
 	colorDefaults["Drop"] = sf::Color::Green;
+
+	// initialize the grid array
+	// this just keeps track of which grid points are occupied by a non-player object
+	// mainly useful for determining how far Flames go when bombs explode
+	//std::vector<std::vector<bool>> grid = {};
+	for (size_t i = 0; i < rows; i++) {
+		std::vector<bool> temp;
+		temp.resize(cols, false);
+		grid.push_back(temp);
+	}
+	
+	// seed the rng
+	srand(112024);
+
+	init();
+}
+
+void SceneGame::init() {
+	std::cout << "(re)initializing game" << std::endl;
+	// restart the entityManager to make sure the player doesn't respawn in a bunch of flames
+	//m_entityManager = std::make_shared<EntityManager>();
+	int killcount = 0;
+	std::cout << "num entities to destroy " << m_entityManager->getEntities().size() << std::endl;
+	for (auto& e : m_entityManager->getEntities()) {
+		e->destroy();
+		killcount++;
+	}
+	std::cout << killcount << std::endl;
+	m_entityManager->update();
+
 
 	/**
 	* Initializes the Bomberman game area
@@ -188,9 +202,13 @@ void SceneGame::init() {
 	float gridY = win_y / rows;
 
 	// add player to the top left corner
-	player = sEntityCreator("Player", Vec2(gridX, gridY), Vec2(0, 0), gridX, gridY);
+	auto e = sEntityCreator("Player", Vec2(gridX, gridY), Vec2(0, 0), gridX, gridY);
+	grid[1][1] = true;
 
+	//auto e1 = sEntityCreator("Player", Vec2(10 * gridX, gridY), Vec2(0, 0), gridX, gridY);
+	//grid[1][10] = true;
 
+	//int createdNum = 0;
 	// set the tiles in fixed locations to prevent unreachable pockets
 	for (size_t i = 0; i < rows; i++) {
 		for (size_t j = 0; j < cols; j++) {
@@ -205,8 +223,12 @@ void SceneGame::init() {
 					Vec2(j * gridX, i * gridY),
 					Vec2(0, 0),
 					gridX, gridY);
-
+				//createdNum++;
+//				std::cout << "created " << createdNum << " " << m_entityManager->getEntities().size() << std::endl;
 				grid[i][j] = true;
+			}
+			else {
+				grid[i][j] = false;
 			}
 		}
 	}
@@ -231,10 +253,22 @@ void SceneGame::init() {
 
 void SceneGame::update() {
 	m_entityManager->update();
+
+	if (!numPlayers) {
+		init();
+	}
+
+	if (hasEnded) {
+		for (auto& e : m_entityManager->getEntities()) {
+			e->destroy();
+		}
+		m_entityManager->update();
+		return;
+	}
+
 	sLifetime();
 	sMovement();
 	sCollisionHandler(m_entityManager->getEntities());
-	//std::cout << "rendering game" << std::endl;
 	sRender();
 	//m_currentFrame++;
 }
@@ -253,7 +287,6 @@ void SceneGame::sMovement() {
 }
 
 void SceneGame::sLifetime() {
-	//std::cout << m_game->deltaTime << std::endl;
 	for (auto& e : m_entityManager->getEntities()) {
 		if (e->cLifetime) {
 			e->cLifetime->lifetime -= m_game->deltaTime;
@@ -426,6 +459,14 @@ void SceneGame::sResolveCollision(std::shared_ptr<Entity> e0, std::shared_ptr<En
 }
 
 void SceneGame::sDoAction(const Action& a) {
+	// dumb temporary fix
+	if (!m_entityManager->getEntities("Player").size()) {
+		std::cout << "no player" << std::endl;
+		return;
+	}
+	std::shared_ptr<Entity> player = m_entityManager->getEntities("Player")[0];
+
+
 	if (a.type() == "START") {
 		if (a.name() == "UP")    player->cTransform->velocity.y = -1.0f * playerSpeed;
 		else if (a.name() == "LEFT")  player->cTransform->velocity.x = -1.0f * playerSpeed;
@@ -616,6 +657,7 @@ void SceneGame::sSpawnBomb(std::shared_ptr<Entity> owner) {
 
 void SceneGame::sEndGame() {
 	std::cout << "ending game" << std::endl;
+	hasEnded = true;
 	m_game->changeScene(1, std::make_shared<SceneMenu>(m_game));
 }
 
