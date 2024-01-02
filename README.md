@@ -24,9 +24,24 @@ ECS game engine made in c++ with graphics help from sfml.
 - show FPS
 - show player inventories
 - different drop rates for the various buffs (eg bomb capacity and arm length should be far more common)
+- some kind of visual indication of what buffs the player has activated
 
 ### Component
 - move all the buffs from BMentity.h to component.h
+
+
+### Buffs
+[0,numBuffs) 		    for special buffs
+[numBuffs, numBuffs+1]  for +bomb and +radius drops respectively
+Abilities:
+0	--	Invincibility/Shield
+1	--	Ghost (can move through stuff) (maybe invisible too?)
+2	--	Atom bomb
+3	--	Speed boost
+4	--	
+
+Impl missing:
+- Portal (teleport to mouse location)
 
 
 

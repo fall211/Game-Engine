@@ -71,11 +71,15 @@ class SceneGame : public Scene {
 	const float bombLifeTime = 2.0f;
 	const float flameLifeTime = 0.5f;
 	const float flameDamage = 1000.0f;
+	const float invincDuration = 1.5f; // default duration of the invincibility buff
+	const float ghostDuration = 1.5f; // default ghost mode duration
+	const float speedBoostMult = 1.5f; // default speed boost (50% increase)
+	const float speedBoostDuration = 3.0f; // default speed boost duration in seconds
 	const int dropRate = 100; // dropRate% chance for a crate to drop something
 
 	// how many different buffs there are in the game
 	// TODO: this would probably work better as an enum
-	const int numBuffs = 5;
+	const unsigned int numBuffs = 4;
 
 	std::map<std::string, sf::Color> colorDefaults;
 
@@ -101,6 +105,7 @@ public:
 	void sAnimation();
 	void sMovement();
 	void sLifetime();
+	void sCooldowns();
 	void sRender() override;
 
 	void sCollisionHandler(EntityList& entities);
@@ -115,6 +120,7 @@ public:
 	std::shared_ptr<Entity> sEntityCreator(std::string tag, Vec2 pos, Vec2 vel, int width, int height);
 	void sRemoveEntity(std::shared_ptr<Entity> e);
 	void sSpawnBomb(std::shared_ptr<Entity> owner);
+	void sUseAbility(unsigned int buffId, std::shared_ptr<Entity> player);
 
 	void sEndGame();
 };

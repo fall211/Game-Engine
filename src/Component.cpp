@@ -41,4 +41,10 @@ CInventory::CInventory() { Component(); }
 CInventory::CInventory(std::vector<int> i) : inv(i) { Component(); }
 CDamage::CDamage(float d) : dmg(d) { Component(); }
 CBuff::CBuff(int d) : buffId(d) { Component(); }
+CInvincibility::CInvincibility() { Component(); }
+CInvincibility::CInvincibility(float tin) : t(tin) { Component(); }
+CGhostMode::CGhostMode() { Component(); }
+CGhostMode::CGhostMode(float tin) : t(tin) { Component(); }
+CSpeedBoost::CSpeedBoost() { Component(); }
+CSpeedBoost::CSpeedBoost(float m, float tin) : mult(m), t(tin) { Component(); }
 

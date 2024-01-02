@@ -31,6 +31,9 @@ class Entity {
         std::shared_ptr<CInventory> cInventory;
         std::shared_ptr<CDamage> cDamage;
         std::shared_ptr<CBuff> cBuff;
+        std::shared_ptr<CInvincibility> cInvincibility;
+        std::shared_ptr<CGhostMode> cGhostMode;
+        std::shared_ptr<CSpeedBoost> cSpeedBoost;
         
         friend class EntityManager;
 

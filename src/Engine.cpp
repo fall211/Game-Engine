@@ -33,8 +33,12 @@ Engine::Engine(sf::RenderWindow& windowin) : m_window(windowin) {
     //// load textures
     m_assets->addTexture("Bomb", "resources/tnt.png");
     m_assets->addTexture("DropDefault", "resources/star.png");
-    m_assets->addTexture("Drop0", "resources/greenplusarrow.png");
-    m_assets->addTexture("Drop1", "resources/plusbomb.png");
+    m_assets->addTexture("DropR", "resources/greenplusarrow.png");
+    m_assets->addTexture("DropB", "resources/plusbomb.png");
+    m_assets->addTexture("Drop0", "resources/shield.png");
+    m_assets->addTexture("Drop1", "resources/ghost.png");
+    m_assets->addTexture("Drop2", "resources/atom.png");
+    m_assets->addTexture("Drop3", "resources/speed.png");
     m_assets->addTexture("Mickey", "resources/mickey.png");
 
 

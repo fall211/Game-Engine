@@ -169,9 +169,6 @@ SceneGame::SceneGame(std::shared_ptr<Engine> game)
 		temp.resize(cols, false);
 		grid.push_back(temp);
 	}
-	
-	// seed the rng
-	srand(112024);
 
 	init();
 }
@@ -274,6 +271,7 @@ void SceneGame::update() {
 	}
 
 	sLifetime();
+	sCooldowns();
 	sMovement();
 	sCollisionHandler(m_entityManager->getEntities());
 	sRender();
@@ -304,6 +302,28 @@ void SceneGame::sLifetime() {
 	}
 }
 
+void SceneGame::sCooldowns() {
+	/**
+	* Handles the cooldowns of entities and abilities
+	**/
+	for (auto& e : m_entityManager->getEntities()) {
+		if (e->cInvincibility && e->cInvincibility->active) {
+			e->cInvincibility->t -= m_game->deltaTime;
+			if (e->cInvincibility->t <= 0) e->cInvincibility->active = false;
+		}
+
+		if (e->cGhostMode && e->cGhostMode->active) {
+			e->cGhostMode->t -= m_game->deltaTime;
+			if (e->cGhostMode->t <= 0) e->cGhostMode->active = false;
+		}
+
+		if (e->cSpeedBoost && e->cSpeedBoost->active) {
+			e->cSpeedBoost->t -= m_game->deltaTime;
+			if (e->cSpeedBoost->t <= 0) e->cSpeedBoost->active = false;
+		}
+	}
+}
+
 void SceneGame::sRender() {
 	float win_x = m_game->window().getSize().x;
 	float win_y = m_game->window().getSize().y;
@@ -322,19 +342,12 @@ void SceneGame::sRender() {
 				s.setTexture(*m_game->getAssets()->getTexture("Bomb"));
 			}
 			else if (t == "Drop") {
-				switch (e->cBuff->buffId) {
-				case 0:
-					s.setTexture(*m_game->getAssets()->getTexture("Drop0"));
-					break;
-				case 1:
-					s.setTexture(*m_game->getAssets()->getTexture("Drop1"));
-					break;
-				//case 2:
-					//break;
-				default:
-					s.setTexture(*m_game->getAssets()->getTexture("DropDefault"));
-					break;
-				}
+				std::string dn = "Drop";
+				if (e->cBuff->buffId < numBuffs) dn += std::to_string(e->cBuff->buffId);
+				else if (e->cBuff->buffId == numBuffs) dn += "R";
+				else if (e->cBuff->buffId == numBuffs+1) dn += "B";
+				else dn += "Default";
+				s.setTexture(*m_game->getAssets()->getTexture(dn));
 			}
 			else {
 				e->cShape->shape.setPosition(e->cTransform->position.x, e->cTransform->position.y);
@@ -351,10 +364,11 @@ void SceneGame::sRender() {
 	if (!m_entityManager->getEntities("Player").size()) return;
 	std::shared_ptr<Entity> player = m_entityManager->getEntities("Player")[0];
 	std::string invS = "";
-	invS += std::to_string(player->cBlastRadius->br) + "A ";
+	invS += std::to_string(player->cBlastRadius->br) + "R ";
 	invS += std::to_string(player->cBombCount->bc) + "B ";
+	const std::vector<char> buffchars = { 'I', 'G', 'A', 'S' };
 	for (size_t i = 0; i < player->cInventory->inv.size(); i++) {
-		invS += std::to_string(player->cInventory->inv[i]) + std::to_string(i) + " ";
+		invS += std::to_string(player->cInventory->inv[i]) + buffchars[i] + " ";
 	}
 	sf::Text invT;
 	invT.setString(invS);
@@ -459,7 +473,7 @@ void SceneGame::sResolveCollision(std::shared_ptr<Entity> e0, std::shared_ptr<En
 	if (t0 == "Tile") return;
 
 	// handle the possibilities that doesn't include a player
-	if (t0 == "Flame" && (/**t1 == "Drop" ||**/ t1 == "Crate" || t1 == "Bomb")) {
+	if (t0 == "Flame" && ((t1 == "Drop" && !e1->cInvincibility->active) || t1 == "Crate" || t1 == "Bomb")) {
 		sRemoveEntity(e1);
 		return;
 	}
@@ -468,7 +482,7 @@ void SceneGame::sResolveCollision(std::shared_ptr<Entity> e0, std::shared_ptr<En
 	if (t0 != "Player") return;
 
 	// flame damages the player but doesn't move them
-	if (t1 == "Flame") {
+	if (t1 == "Flame" && !e0->cInvincibility->active) {
 		e0->cHealth->h -= (int)e1->cDamage->dmg;
 		if (e0->cHealth->h <= 0) {
 			sRemoveEntity(e0);
@@ -477,18 +491,12 @@ void SceneGame::sResolveCollision(std::shared_ptr<Entity> e0, std::shared_ptr<En
 	}
 
 	if (t1 == "Drop") {
-		switch (e1->cBuff->buffId) {
-		case 0: // increases arm length
-			e0->cBlastRadius->br += 1;
-			break;
-		case 1: // increases the number of simultaneously active bombs
-			e0->cBombCount->bc += 1;
-			break;
-		default: // all the special buffs
-			e0->addToInventory(e1->cBuff->buffId, 1);
-			break;
+		int b = e1->cBuff->buffId;
+		if (b < numBuffs) e0->addToInventory(b, 1);
+		else if (b == numBuffs) e0->cBlastRadius->br += 1;
+		else if (b == numBuffs+1) e0->cBombCount->bc += 1;
+		else {}// not found}
 
-		}
 		sRemoveEntity(e1);
 		return;
 	}
@@ -533,17 +541,19 @@ void SceneGame::sDoAction(const Action& a) {
 	}
 	std::shared_ptr<Entity> player = m_entityManager->getEntities("Player")[0];
 
+	// speed boost multiplier
+	float m = (player->cSpeedBoost && player->cSpeedBoost->active) ? player->cSpeedBoost->mult : 1.0f;
 
 	if (a.type() == "START") {
-		if (a.name() == "UP")    player->cTransform->velocity.y = -1.0f * playerSpeed;
-		else if (a.name() == "LEFT")  player->cTransform->velocity.x = -1.0f * playerSpeed;
-		else if (a.name() == "DOWN")  player->cTransform->velocity.y = 1.0f * playerSpeed;
-		else if (a.name() == "RIGHT") player->cTransform->velocity.x = 1.0f * playerSpeed;
+		if (a.name() == "UP")    player->cTransform->velocity.y = -1.0f * playerSpeed * m;
+		else if (a.name() == "LEFT")  player->cTransform->velocity.x = -1.0f * playerSpeed * m;
+		else if (a.name() == "DOWN")  player->cTransform->velocity.y = 1.0f * playerSpeed * m;
+		else if (a.name() == "RIGHT") player->cTransform->velocity.x = 1.0f * playerSpeed * m;
 		else if (a.name() == "BOMB")  sSpawnBomb(player);
-		else if (a.name() == "BUFF1") {}// TODO
-		else if (a.name() == "BUFF2") {}// TODO
-		else if (a.name() == "BUFF3") {}// TODO
-		else if (a.name() == "BUFF4") {}// TODO
+		else if (a.name() == "BUFF1") sUseAbility(0, player);
+		else if (a.name() == "BUFF2") sUseAbility(1, player);
+		else if (a.name() == "BUFF3") sUseAbility(2, player);
+		else if (a.name() == "BUFF4") sUseAbility(3, player);
 		else if (a.name() == "PAUSE") togglePause();
 		else if (a.name() == "QUIT")  sEndGame();
 		else {}
@@ -589,6 +599,10 @@ std::shared_ptr<Entity> SceneGame::sEntityCreator(std::string tag, Vec2 pos, Vec
 		e->cBombCount = std::make_shared<CBombCount>(1);
 		e->cControls = std::make_shared<CControls>();
 		e->cInventory = std::make_shared<CInventory>();
+		e->cInventory->inv.resize(numBuffs);
+		e->cInvincibility = std::make_shared<CInvincibility>();
+		e->cGhostMode = std::make_shared<CGhostMode>();
+		e->cSpeedBoost = std::make_shared<CSpeedBoost>();
 
 		numPlayers++;
 	}
@@ -597,12 +611,16 @@ std::shared_ptr<Entity> SceneGame::sEntityCreator(std::string tag, Vec2 pos, Vec
 		e->cInventory = std::make_shared<CInventory>();
 		if (rand() % 100 < dropRate) {
 			//e->addToInventory(0, rand() % numBuffs); //randomizes which buff to add to crate
-			e->cInventory->inv.push_back(rand() % numBuffs);
+			e->cInventory->inv.push_back(rand() % (numBuffs+2)); // +2 for +bomb and +radius
 		}
 	}
 	else if (tag == "Flame") {
 		e->cLifetime = std::make_shared<CLifetime>(flameLifeTime);
 		e->cDamage = std::make_shared<CDamage>(flameDamage);
+	}
+	else if (tag == "Drop") {
+		e->cInvincibility = std::make_shared<CInvincibility>(1.05f*flameLifeTime);
+		e->cInvincibility->active = true;
 	}
 
 	return e;
@@ -721,6 +739,52 @@ void SceneGame::sSpawnBomb(std::shared_ptr<Entity> owner) {
 	bomb->cOwner = std::make_shared<COwner>(owner->getId());
 
 
+}
+
+void SceneGame::sUseAbility(unsigned int buffId, std::shared_ptr<Entity> player) {
+	/**
+	* executes the ability specified by buffId for the given player entity
+	* 
+	* Currently supported buffs:
+	* - invincibility: the player will not take damage from any sources
+	* - ghost: allows the player to freely move through bombs and other players
+	* - atom bomb: drops a special bomb that does damage is a large area and is able to
+	*		destroy some tiles
+	* - speed: gives the player a short duration movement speed boost
+	**/
+
+	// check whether this entity has the specified buff available in inventory
+	if (!player->cInventory
+	 ||  player->cInventory->inv.size() <= buffId
+	 ||  player->cInventory->inv[buffId] < 1) return;
+
+	if (buffId == 0) { // invincibility
+		if (!player->cInvincibility) return;
+		if (player->cInvincibility->active)  return; // the invinc buff is already active; prevent double usage
+		player->cInvincibility->active = true;
+		player->cInvincibility->t = invincDuration;
+	}
+	else if (buffId == 1) { // ghost
+		if (!player->cGhostMode) return;
+		if (player->cGhostMode->active)  return;
+		player->cGhostMode->active = true;
+		player->cGhostMode->t = ghostDuration;
+	}
+	else if (buffId == 2) { // atom bomb
+
+	}
+	else if (buffId == 3) { // speed boost
+		if (!player->cSpeedBoost) return;
+		if (player->cSpeedBoost->active)  return;
+		player->cSpeedBoost->active = true;
+		player->cSpeedBoost->mult = speedBoostMult;
+		player->cSpeedBoost->t = speedBoostDuration;
+	}
+	else {
+		std::cout << "buff not implemented yet" << std::endl;
+		return;
+	}
+	player->cInventory->inv[buffId]--;
 }
 
 void SceneGame::sEndGame() {

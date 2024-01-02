@@ -1,6 +1,8 @@
 #include <iostream>
 #include <string>
 #include <SFML/Graphics.hpp>
+#include <stdlib.h> // for srand
+#include <time.h> // for time
 
 #include "Engine.h"
 
@@ -9,6 +11,10 @@ void debug(std::string& message);
 
 
 int main() {
+
+
+    // seed the rng
+    srand(time(NULL));
 
 
     //// TESTS

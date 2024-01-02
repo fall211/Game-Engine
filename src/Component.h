@@ -141,4 +141,32 @@ public:
     CBuff(int b);
 };
 
+class CInvincibility : public Component {
+public:
+    bool active = false; //whether the invicibility is active
+    float t; // how long the invincibility is active
+    CInvincibility();
+    CInvincibility(float tin);
+};
+
+
+class CGhostMode : public Component {
+public:
+    bool active = false;
+    float t;
+    CGhostMode();
+    CGhostMode(float tin);
+};
+
+class CSpeedBoost : public Component {
+public:
+    bool active = false;
+    float mult;
+    float t;
+    CSpeedBoost();
+    CSpeedBoost(float m, float tin);
+};
+
+
+
 #endif // COMPONENT_H
