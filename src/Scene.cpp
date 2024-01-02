@@ -335,7 +335,7 @@ void SceneGame::sRender() {
 			if (t == "Player") {
 				s.setTexture(*m_game->getAssets()->getTexture("Mickey"));
 			}
-			else if (t == "Bomb" || t == "Crate" || t == "Flame" || t == "Tile") {
+			else if (t == "Bomb" || t == "Crate" || t == "Flame" || t == "Tile" || t == "AtomBomb") {
 				s.setTexture(*m_game->getAssets()->getTexture(t));
 			}
 			else if (t == "Drop") {
@@ -404,7 +404,7 @@ void SceneGame::sCollisionHandler(EntityList& entities) {
 	**/
 	for (auto& e0 : entities) {
 		// an extra check for bombs that are no longer touching their owner
-		if (e0->getTag() == "Bomb" && e0->cOwner) {
+		if ((e0->getTag() == "Bomb" || e0->getTag() == "AtomBomb") && e0->cOwner) {
 			for (auto& e1 : entities) {
 				if (e0->cOwner->ownerId == e1->getId()) {
 					if (!isBBoxCollision(e0, e1)) {
@@ -508,7 +508,7 @@ void SceneGame::sResolveCollision(std::shared_ptr<Entity> e0, std::shared_ptr<En
 		int b = e1->cBuff->buffId;
 		if (b < numBuffs) e0->addToInventory(b, 1);
 		else if (b == numBuffs) e0->cBlastRadius->br += 1;
-		else if (b == numBuffs+1) e0->cBombCount->bc += 1;
+		else if (b == numBuffs + 1) e0->cBombCount->bc += 1;
 		else {}// not found}
 
 		sRemoveEntity(e1);
@@ -517,7 +517,7 @@ void SceneGame::sResolveCollision(std::shared_ptr<Entity> e0, std::shared_ptr<En
 
 
 	// special case where the player is sitting on top of a bomb they just placed
-	if (t1 == "Bomb" && e1->cOwner && e1->cOwner->ownerId == e0->getId()) return;
+	if ((t1 == "Bomb" || t1 == "AtomBomb") && e1->cOwner && e1->cOwner->ownerId == e0->getId()) return;
 
 
 	// positions centered on the entity
@@ -670,6 +670,7 @@ void SceneGame::sRemoveEntity(std::shared_ptr<Entity> e) {
 		// for now, only spawns the flames; the flames will set off bombs and break crates on the next frame
 		for (int i = 0; i < e->cBlastRadius->br; i++) { // right check
 			if (j_nearest + i >= cols) break;
+			if (grid[i_nearest][j_nearest + i] && grid[i_nearest][j_nearest + i]->getTag() == "Tile") break;
 			Vec2 pos = Vec2((j_nearest + i) * gridX, i_nearest * gridY);
 			auto e1 = sEntityCreator("Flame", pos, Vec2(0, 0), gridX, gridY);
 			if (grid[i_nearest][j_nearest + i]) break;
@@ -678,6 +679,7 @@ void SceneGame::sRemoveEntity(std::shared_ptr<Entity> e) {
 		//this and the subsequent for loops start at i=1 to avoid creating 4 explosions on the bomb square
 		for (int i = 1; i < e->cBlastRadius->br; i++) { // left check
 			if (j_nearest - i < 0) break;
+			if (grid[i_nearest][j_nearest - i] && grid[i_nearest][j_nearest - i]->getTag() == "Tile") break;
 			Vec2 pos = Vec2((j_nearest - i) * gridX, i_nearest * gridY);
 			auto e1 = sEntityCreator("Flame", pos, Vec2(0, 0), gridX, gridY);
 			if (grid[i_nearest][j_nearest - i]) break;
@@ -686,6 +688,7 @@ void SceneGame::sRemoveEntity(std::shared_ptr<Entity> e) {
 
 		for (int i = 1; i < e->cBlastRadius->br; i++) { // down check
 			if (i_nearest + i >= rows) break;
+			if (grid[i_nearest + i][j_nearest] && grid[i_nearest + i][j_nearest]->getTag() == "Tile") break;
 			Vec2 pos = Vec2(j_nearest * gridX, (i_nearest + i) * gridY);
 			auto e1 = sEntityCreator("Flame", pos, Vec2(0, 0), gridX, gridY);
 			if (grid[i_nearest + i][j_nearest]) break;
@@ -693,6 +696,7 @@ void SceneGame::sRemoveEntity(std::shared_ptr<Entity> e) {
 		}
 		for (int i = 1; i < e->cBlastRadius->br; i++) { // up check
 			if (i_nearest - i < 0) break;
+			if (grid[i_nearest - i][j_nearest] && grid[i_nearest - i][j_nearest]->getTag() == "Tile") break;
 			Vec2 pos = Vec2(j_nearest * gridX, (i_nearest - i) * gridY);
 			auto e1 = sEntityCreator("Flame", pos, Vec2(0, 0), gridX, gridY);
 			if (grid[i_nearest - i][j_nearest]) break;

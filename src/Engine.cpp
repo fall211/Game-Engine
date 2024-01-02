@@ -42,6 +42,7 @@ Engine::Engine(sf::RenderWindow& windowin) : m_window(windowin) {
     m_assets->addTexture("Drop1", "resources/ghost.png");
     m_assets->addTexture("Drop2", "resources/atom.png");
     m_assets->addTexture("Drop3", "resources/speed.png");
+    m_assets->addTexture("AtomBomb", "resources/atombomb.png");
     m_assets->addTexture("Mickey", "resources/mickey.png");
 
 

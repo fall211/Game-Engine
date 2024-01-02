@@ -66,7 +66,7 @@ class SceneGame : public Scene {
 	//PlayerConfig playerConfig; // ??
 
 
-	bool debugMode = false;
+	bool debugMode = true;
 
 	// *** BOMBERMAN PARAMETERS ***
 	const float playerSpeed = 3.0f;
