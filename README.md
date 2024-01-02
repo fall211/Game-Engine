@@ -25,6 +25,9 @@ ECS game engine made in c++ with graphics help from sfml.
 - show player inventories
 - different drop rates for the various buffs (eg bomb capacity and arm length should be far more common)
 - some kind of visual indication of what buffs the player has activated
+- generalize sSpawnBomb to work on atombombs any future special bombs by taking in a function that specifies its blast shape
+	- eg something like `sSpawnBomb(int,std::shared_ptr<Entity>,std::function<bool(int,int)>) : void`
+	- where `std::function<bool(int,int)>` takes in `i,j` and returns whether to spawn a flame there
 
 ### Component
 - move all the buffs from BMentity.h to component.h

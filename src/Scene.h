@@ -65,6 +65,9 @@ class SceneGame : public Scene {
 	//std::shared_ptr<Entity> player;
 	//PlayerConfig playerConfig; // ??
 
+
+	bool debugMode = false;
+
 	// *** BOMBERMAN PARAMETERS ***
 	const float playerSpeed = 3.0f;
 	const int playerHealth = 100;
@@ -75,6 +78,7 @@ class SceneGame : public Scene {
 	const float ghostDuration = 1.5f; // default ghost mode duration
 	const float speedBoostMult = 1.5f; // default speed boost (50% increase)
 	const float speedBoostDuration = 3.0f; // default speed boost duration in seconds
+	const int atomBombRadius = 3;
 	const int dropRate = 100; // dropRate% chance for a crate to drop something
 
 	// how many different buffs there are in the game
@@ -86,7 +90,7 @@ class SceneGame : public Scene {
 	//float bw = 10.0f;
 	const int rows = 15;
 	const int cols = 25;
-	std::vector<std::vector<bool>> grid;
+	std::vector<std::vector<std::shared_ptr<Entity>>> grid;
 
 	int numPlayers = 0;
 
@@ -98,7 +102,7 @@ public:
 	void init();
 	void update() override;
 
-
+	bool tileLogic(int i, int j);
 	std::string toString();
 
 	//systems; scene dependent

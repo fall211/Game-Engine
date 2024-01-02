@@ -165,8 +165,8 @@ SceneGame::SceneGame(std::shared_ptr<Engine> game)
 	// mainly useful for determining how far Flames go when bombs explode
 	//std::vector<std::vector<bool>> grid = {};
 	for (size_t i = 0; i < rows; i++) {
-		std::vector<bool> temp;
-		temp.resize(cols, false);
+		std::vector<std::shared_ptr<Entity>> temp;
+		temp.resize(cols, nullptr);
 		grid.push_back(temp);
 	}
 
@@ -206,11 +206,8 @@ void SceneGame::init() {
 	for (size_t i = 0; i < rows; i++) {
 		for (size_t j = 0; j < cols; j++) {
 			if (
-				i == 0 || j == 0 || i == rows - 1 || j == cols - 1
-				|| i > 2 && i < 6 && j > 4 && j < 10
-				|| i > 2 && i < 6 && j > 14 && j < 20
-				|| i > 8 && i < 12 && j > 4 && j < 10
-				|| i > 8 && i < 12 && j > 14 && j < 20
+				i == 0 || j == 0 || i == rows - 1 || j == cols - 1 //always spawn tiles at the arena's edges
+				|| tileLogic(i, j)
 				) {
 				auto e = sEntityCreator("Tile",
 					Vec2(j * gridX, i * gridY),
@@ -218,17 +215,17 @@ void SceneGame::init() {
 					gridX, gridY);
 				//createdNum++;
 //				std::cout << "created " << createdNum << " " << m_entityManager->getEntities().size() << std::endl;
-				grid[i][j] = true;
+				grid[i][j] = e;
 			}
-			else {
-				grid[i][j] = false;
-			}
+			//else {
+			//	grid[i][j] = false;
+			//}
 		}
 	}
 
 	// add player to the top left corner
 	auto e = sEntityCreator("Player", Vec2(gridX, gridY), Vec2(0, 0), gridX, gridY);
-	grid[1][1] = true; //temporarily reserve this square for the player
+	grid[1][1] = e; //temporarily reserve this square for the player
 
 	//auto e1 = sEntityCreator("Player", Vec2(10 * gridX, gridY), Vec2(0, 0), gridX, gridY);
 	//grid[1][10] = true;
@@ -245,12 +242,12 @@ void SceneGame::init() {
 				Vec2(0, 0),
 				gridX, gridY);
 
-			grid[randY][randX] = true;
+			grid[randY][randX] = e;
 			i++;
 		}
 	}
 
-	grid[1][1] = false; //set it back to false so that players can drop bombs on it
+	grid[1][1] = nullptr; //set it back to false so that players can drop bombs on it
 }
 
 void SceneGame::update() {
@@ -377,6 +374,22 @@ void SceneGame::sRender() {
 	invT.setStyle(sf::Text::Bold);
 	invT.setPosition(10, 10);
 	m_game->window().draw(invT);
+
+
+	// do debugging stuff
+	if (!debugMode) return;
+
+	for (int i = 0; i < rows; i++) {
+		for (int j = 0; j < cols; j++) {
+			if (!grid[i][j]) continue;
+			sf::Text t;
+			t.setString("x");
+			t.setFillColor(sf::Color::Black);
+			t.setFont(arialF);
+			t.setPosition(j * gridX, i * gridY);
+			m_game->window().draw(t);
+		}
+	}
 }
 
 void SceneGame::sCollisionHandler(EntityList& entities) {
@@ -650,7 +663,7 @@ void SceneGame::sRemoveEntity(std::shared_ptr<Entity> e) {
 	int i_nearest = round(e->cTransform->position.y / gridY);
 	int j_nearest = round(e->cTransform->position.x / gridX);
 
-	grid[i_nearest][j_nearest] = false;
+	grid[i_nearest][j_nearest] = nullptr;
 
 	if (t == "Bomb") {
 		// spawn flames, detonate all connected bombs, break all connected crates
@@ -660,7 +673,7 @@ void SceneGame::sRemoveEntity(std::shared_ptr<Entity> e) {
 			Vec2 pos = Vec2((j_nearest + i) * gridX, i_nearest * gridY);
 			auto e1 = sEntityCreator("Flame", pos, Vec2(0, 0), gridX, gridY);
 			if (grid[i_nearest][j_nearest + i]) break;
-			grid[i_nearest][j_nearest + i] = true;
+			grid[i_nearest][j_nearest + i] = e1;
 		}
 		//this and the subsequent for loops start at i=1 to avoid creating 4 explosions on the bomb square
 		for (int i = 1; i < e->cBlastRadius->br; i++) { // left check
@@ -668,7 +681,7 @@ void SceneGame::sRemoveEntity(std::shared_ptr<Entity> e) {
 			Vec2 pos = Vec2((j_nearest - i) * gridX, i_nearest * gridY);
 			auto e1 = sEntityCreator("Flame", pos, Vec2(0, 0), gridX, gridY);
 			if (grid[i_nearest][j_nearest - i]) break;
-			grid[i_nearest][j_nearest - i] = true;
+			grid[i_nearest][j_nearest - i] = e1;
 		}
 
 		for (int i = 1; i < e->cBlastRadius->br; i++) { // down check
@@ -676,14 +689,14 @@ void SceneGame::sRemoveEntity(std::shared_ptr<Entity> e) {
 			Vec2 pos = Vec2(j_nearest * gridX, (i_nearest + i) * gridY);
 			auto e1 = sEntityCreator("Flame", pos, Vec2(0, 0), gridX, gridY);
 			if (grid[i_nearest + i][j_nearest]) break;
-			grid[i_nearest + i][j_nearest] = true;
+			grid[i_nearest + i][j_nearest] = e1;
 		}
 		for (int i = 1; i < e->cBlastRadius->br; i++) { // up check
 			if (i_nearest - i < 0) break;
 			Vec2 pos = Vec2(j_nearest * gridX, (i_nearest - i) * gridY);
 			auto e1 = sEntityCreator("Flame", pos, Vec2(0, 0), gridX, gridY);
 			if (grid[i_nearest - i][j_nearest]) break;
-			grid[i_nearest - i][j_nearest] = true;
+			grid[i_nearest - i][j_nearest] = e1;
 		}
 
 
@@ -693,15 +706,36 @@ void SceneGame::sRemoveEntity(std::shared_ptr<Entity> e) {
 		auto e1 = sEntityCreator("Drop", Vec2(j_nearest * gridX, i_nearest * gridY), Vec2(0, 0), gridX, gridY);
 		e1->cBuff = std::make_shared<CBuff>(e->cInventory->inv[0]);
 
-		grid[i_nearest][j_nearest] = true;
+		grid[i_nearest][j_nearest] = e1;
 	}
 	else if (t == "Tile") {
-		// this case should be rare; only occurs when an atom bomb detones
+		// this case should be rare; only occurs when an atom bomb detonates
 		// or maybe when using a level editor?
 
 	}
+	else if (t == "AtomBomb") {
+		for (int di = -1 * atomBombRadius; di <= atomBombRadius; di++) {
+			for (int dj = -1 * atomBombRadius; dj <= atomBombRadius; dj++) {
+				// ignore tiles on the edge of the map
+				if (i_nearest + di <= 1 || i_nearest + di >= rows - 1
+				 || j_nearest + dj <= 1 || j_nearest + dj >= rows - 1) continue;
 
-	// TODO: special bombs
+				// spawn the flame
+				Vec2 pos = Vec2((j_nearest + dj) * gridX, (i_nearest + di) * gridY);
+				auto e1 = sEntityCreator("Flame", pos, Vec2(0, 0), gridX, gridY);
+
+				// destroy any tiles inside the atom bomb's blast
+				if (grid[i_nearest + di][j_nearest + dj]
+				 && grid[i_nearest + di][j_nearest + dj]->getTag() == "Tile") {
+					sRemoveEntity(grid[i_nearest + di][j_nearest + dj]);
+				}
+
+				grid[i_nearest + di][j_nearest + dj] = e1;
+			}
+		}
+	}
+
+	// TODO: more special bombs
 }
 
 void SceneGame::sSpawnBomb(std::shared_ptr<Entity> owner) {
@@ -729,6 +763,8 @@ void SceneGame::sSpawnBomb(std::shared_ptr<Entity> owner) {
 		Vec2(j_nearest * gridX, i_nearest * gridY),
 		Vec2(0, 0),
 		gridX, gridY);
+
+	grid[i_nearest][j_nearest] = bomb; // the grid point is now occupied by the bomb
 
 	// the bomb starts ticking as soon as it's dropped
 	bomb->cLifetime = std::make_shared<CLifetime>(bombLifeTime);
@@ -772,7 +808,16 @@ void SceneGame::sUseAbility(unsigned int buffId, std::shared_ptr<Entity> player)
 		player->cGhostMode->t = ghostDuration;
 	}
 	else if (buffId == 2) { // atom bomb
-
+		// basically just a copy-paste of sSpawnBomb
+		float gridX = m_game->window().getSize().x / cols;
+		float gridY = m_game->window().getSize().y / rows;
+		int i_nearest = round(player->cTransform->position.y / gridY);
+		int j_nearest = round(player->cTransform->position.x / gridX);
+		if (grid[i_nearest][j_nearest]) return;
+		auto bomb = sEntityCreator("AtomBomb", Vec2(j_nearest * gridX, i_nearest * gridY), Vec2(0, 0), gridX, gridY);
+		grid[i_nearest][j_nearest] = bomb;
+		bomb->cLifetime = std::make_shared<CLifetime>(bombLifeTime);
+		bomb->cOwner = std::make_shared<COwner>(player->getId());
 	}
 	else if (buffId == 3) { // speed boost
 		if (!player->cSpeedBoost) return;
@@ -794,6 +839,16 @@ void SceneGame::sEndGame() {
 	m_game->changeScene(1, std::make_shared<SceneMenu>(m_game));
 }
 
+
+bool SceneGame::tileLogic(int i, int j) {
+	/**
+	* function that determines whether the grid point (j,i) should contain a tile
+	**/
+	return i > 2 && i < 6 && j > 4 && j < 10
+		|| i > 2 && i < 6 && j > 14 && j < 20
+		|| i > 8 && i < 12 && j > 4 && j < 10
+		|| i > 8 && i < 12 && j > 14 && j < 20;
+}
 
 
 std::string SceneMenu::toString() {
