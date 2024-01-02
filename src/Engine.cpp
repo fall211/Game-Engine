@@ -32,9 +32,10 @@ Engine::Engine(sf::RenderWindow& windowin) : m_window(windowin) {
 
     //// load textures
     m_assets->addTexture("Bomb", "resources/tnt.png");
-    m_assets->addTexture("Drop0", "resources/star.png");
-    m_assets->addTexture("Drop1", "resources/plusbomb.png");
-    m_assets->addTexture("Drop2", "resources/greenplusarrow.png");
+    m_assets->addTexture("DropDefault", "resources/star.png");
+    m_assets->addTexture("Drop0", "resources/plusbomb.png");
+    m_assets->addTexture("Drop1", "resources/greenplusarrow.png");
+    m_assets->addTexture("Mickey", "resources/mickey.png");
 
 
     // start the game in the menu scene

@@ -178,12 +178,12 @@ void SceneGame::init() {
 	// restart the entityManager to make sure the player doesn't respawn in a bunch of flames
 	//m_entityManager = std::make_shared<EntityManager>();
 	int killcount = 0;
-	std::cout << "num entities to destroy " << m_entityManager->getEntities().size() << std::endl;
+	//std::cout << "num entities to destroy " << m_entityManager->getEntities().size() << std::endl;
 	for (auto& e : m_entityManager->getEntities()) {
 		e->destroy();
 		killcount++;
 	}
-	std::cout << killcount << std::endl;
+	//std::cout << killcount << std::endl;
 	m_entityManager->update();
 
 
@@ -200,13 +200,6 @@ void SceneGame::init() {
 	// and fill it with crates and tiles
 	float gridX = win_x / cols;
 	float gridY = win_y / rows;
-
-	// add player to the top left corner
-	auto e = sEntityCreator("Player", Vec2(gridX, gridY), Vec2(0, 0), gridX, gridY);
-	grid[1][1] = true;
-
-	//auto e1 = sEntityCreator("Player", Vec2(10 * gridX, gridY), Vec2(0, 0), gridX, gridY);
-	//grid[1][10] = true;
 
 	//int createdNum = 0;
 	// set the tiles in fixed locations to prevent unreachable pockets
@@ -233,6 +226,13 @@ void SceneGame::init() {
 		}
 	}
 
+	// add player to the top left corner
+	auto e = sEntityCreator("Player", Vec2(gridX, gridY), Vec2(0, 0), gridX, gridY);
+	grid[1][1] = true; //temporarily reserve this square for the player
+
+	//auto e1 = sEntityCreator("Player", Vec2(10 * gridX, gridY), Vec2(0, 0), gridX, gridY);
+	//grid[1][10] = true;
+
 	const int numCrates = 50;
 	size_t i = 0;
 	while (i < numCrates) {
@@ -249,6 +249,8 @@ void SceneGame::init() {
 			i++;
 		}
 	}
+
+	grid[1][1] = false; //set it back to false so that players can drop bombs on it
 }
 
 void SceneGame::update() {
@@ -256,6 +258,8 @@ void SceneGame::update() {
 
 	if (!numPlayers) {
 		init();
+		hasEnded = false;
+		m_entityManager->update();
 	}
 
 	if (hasEnded) {
@@ -298,10 +302,44 @@ void SceneGame::sLifetime() {
 }
 
 void SceneGame::sRender() {
+	float win_x = m_game->window().getSize().x;
+	float win_y = m_game->window().getSize().y;
+	float gridX = win_x / cols;
+	float gridY = win_y / rows;
+
 	for (auto& e : m_entityManager->getEntities()) {
 		if (e->cShape) {
-			e->cShape->shape.setPosition(e->cTransform->position.x, e->cTransform->position.y);
-			m_game->window().draw(e->cShape->shape);
+			std::string t = e->getTag();
+			sf::Sprite s;
+			if (t == "Player") {
+				s.setTexture(*m_game->getAssets()->getTexture("Mickey"));
+			}
+			else if (t == "Bomb") {
+				s.setTexture(*m_game->getAssets()->getTexture("Bomb"));
+			}
+			else if (t == "Drop") {
+				switch (e->cBuff->buffId) {
+				case 0:
+					s.setTexture(*m_game->getAssets()->getTexture("Drop0"));
+					break;
+				case 1:
+					s.setTexture(*m_game->getAssets()->getTexture("Drop1"));
+					break;
+				//case 2:
+					//break;
+				default:
+					s.setTexture(*m_game->getAssets()->getTexture("DropDefault"));
+					break;
+				}
+			}
+			else {
+				e->cShape->shape.setPosition(e->cTransform->position.x, e->cTransform->position.y);
+				m_game->window().draw(e->cShape->shape);
+			}
+			s.setPosition(sf::Vector2f(e->cTransform->position.x, e->cTransform->position.y));
+			auto sScale = s.getGlobalBounds().getSize();
+			s.setScale(sf::Vector2f(gridX/sScale.x, gridY/sScale.y));
+			m_game->window().draw(s);
 		}
 	}
 }
