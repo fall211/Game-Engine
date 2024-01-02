@@ -27,6 +27,7 @@ class Entity {
 
         std::shared_ptr<CHealth> cHealth;
         std::shared_ptr<CBlastRadius> cBlastRadius;
+        std::shared_ptr<CBombCount> cBombCount;
         std::shared_ptr<CInventory> cInventory;
         std::shared_ptr<CDamage> cDamage;
         std::shared_ptr<CBuff> cBuff;

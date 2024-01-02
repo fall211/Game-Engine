@@ -9,6 +9,9 @@
 Scene::Scene(std::shared_ptr<Engine> g) : m_game(g) {
 	m_entityManager = std::make_shared<EntityManager>();
 	m_actionMap = std::map<int, std::string>();
+
+	// load font
+	if (!arialF.loadFromFile("fonts/arial.ttf")) throw 404;
 }
 Scene::~Scene() { } // there shouldn't be any pointers for this to delete
 
@@ -31,7 +34,7 @@ SceneMenu::SceneMenu(std::shared_ptr<Engine> game)
 	: Scene(game) {
 
 	// load font
-	if (!arialF.loadFromFile("fonts/arial.ttf")) throw 404;
+	//if (!arialF.loadFromFile("fonts/arial.ttf")) throw 404;
 
 	// keybindings
 	registerAction(sf::Keyboard::Up, "UP");
@@ -307,6 +310,7 @@ void SceneGame::sRender() {
 	float gridX = win_x / cols;
 	float gridY = win_y / rows;
 
+	// render entities
 	for (auto& e : m_entityManager->getEntities()) {
 		if (e->cShape) {
 			std::string t = e->getTag();
@@ -342,6 +346,22 @@ void SceneGame::sRender() {
 			m_game->window().draw(s);
 		}
 	}
+
+	// render player inventory
+	if (!m_entityManager->getEntities("Player").size()) return;
+	std::shared_ptr<Entity> player = m_entityManager->getEntities("Player")[0];
+	std::string invS = "";
+	invS += std::to_string(player->cBlastRadius->br) + "A ";
+	invS += std::to_string(player->cBombCount->bc) + "B ";
+	for (size_t i = 0; i < player->cInventory->inv.size(); i++) {
+		invS += std::to_string(player->cInventory->inv[i]) + std::to_string(i) + " ";
+	}
+	sf::Text invT;
+	invT.setString(invS);
+	invT.setFillColor(sf::Color::Black);
+	invT.setFont(arialF);
+	invT.setPosition(10, 10);
+	m_game->window().draw(invT);
 }
 
 void SceneGame::sCollisionHandler(EntityList& entities) {
@@ -430,7 +450,7 @@ void SceneGame::sResolveCollision(std::shared_ptr<Entity> e0, std::shared_ptr<En
 	* Player - Drop
 	* Flame - Crate
 	* Flame - Drop
-	* TODO: Flame - Bomb --> will set off the bomb
+	* Flame - Bomb --> will set off the bomb
 	**/
 
 	const std::string t0 = e0->getTag();
@@ -453,6 +473,23 @@ void SceneGame::sResolveCollision(std::shared_ptr<Entity> e0, std::shared_ptr<En
 		if (e0->cHealth->h <= 0) {
 			sRemoveEntity(e0);
 		}
+		return;
+	}
+
+	if (t1 == "Drop") {
+		switch (e1->cBuff->buffId) {
+		case 0: // increases arm length
+			e0->cBlastRadius->br += 1;
+			break;
+		case 1: // increases the number of simultaneously active bombs
+			e0->cBombCount->bc += 1;
+			break;
+		default: // all the special buffs
+			e0->addToInventory(e1->cBuff->buffId, 1);
+			break;
+
+		}
+		sRemoveEntity(e1);
 		return;
 	}
 
@@ -485,14 +522,6 @@ void SceneGame::sResolveCollision(std::shared_ptr<Entity> e0, std::shared_ptr<En
 	else {
 		e0->cTransform->position.y += EngineMath::sgn(deltaPos.y) * overlap.y;
 		//std::cout << "y " << overlap.x << " " << overlap.y << " " << std::abs(deltaPos.x) << " " << std::abs(deltaPos.y) << std::endl;
-	}
-
-	// now go over all the possible effects
-	if (t1 == "Drop") {
-		e0->addToInventory(e1->cBuff->buffId, 1);
-		//std::cout << "Picked up " << e1->cBuff->buffId << std::endl;
-		sRemoveEntity(e1);
-		return;
 	}
 }
 
@@ -555,9 +584,10 @@ std::shared_ptr<Entity> SceneGame::sEntityCreator(std::string tag, Vec2 pos, Vec
 
 	// special cases
 	if (tag == "Player") {
-		e->cBlastRadius = std::make_shared<CBlastRadius>(2);
-		e->cControls = std::make_shared<CControls>();
 		e->cHealth = std::make_shared<CHealth>(playerHealth);
+		e->cBlastRadius = std::make_shared<CBlastRadius>(2);
+		e->cBombCount = std::make_shared<CBombCount>(1);
+		e->cControls = std::make_shared<CControls>();
 		e->cInventory = std::make_shared<CInventory>();
 
 		numPlayers++;

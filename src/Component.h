@@ -108,6 +108,15 @@ public:
     CBlastRadius(int b);
 };
 
+class CBombCount : public Component {
+    /**
+    * Describes how many bombs the player can drop simultaneously
+    **/
+public:
+    int bc = 1;
+    CBombCount(int b);
+};
+
 class CInventory : public Component {
 public:
     std::vector<int> inv = {};

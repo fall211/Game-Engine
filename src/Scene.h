@@ -24,6 +24,8 @@ public:
 	bool paused = false;
 	bool hasEnded = false;
 
+	sf::Font arialF;
+
 	virtual void update() = 0;
 	virtual void sDoAction(const Action& a) = 0;
 	virtual void sRender() = 0;
@@ -44,7 +46,7 @@ class SceneMenu : public Scene {
 public:
 	const std::vector<std::string> menuStrings = { "PLAY", "KEYBINDINGS", "HELP", "QUIT" };
 	int activeItem = 0;
-	sf::Font arialF;
+	
 
 	SceneMenu(std::shared_ptr<Engine> game);
 
