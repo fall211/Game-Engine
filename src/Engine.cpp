@@ -32,6 +32,9 @@ Engine::Engine(sf::RenderWindow& windowin) : m_window(windowin) {
 
     //// load textures
     m_assets->addTexture("Bomb", "resources/tnt.png");
+    m_assets->addTexture("Crate", "resources/crate.png");
+    m_assets->addTexture("Flame", "resources/flame.png");
+    m_assets->addTexture("Tile", "resources/tile.png");
     m_assets->addTexture("DropDefault", "resources/star.png");
     m_assets->addTexture("DropR", "resources/greenplusarrow.png");
     m_assets->addTexture("DropB", "resources/plusbomb.png");

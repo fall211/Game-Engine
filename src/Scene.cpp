@@ -338,8 +338,8 @@ void SceneGame::sRender() {
 			if (t == "Player") {
 				s.setTexture(*m_game->getAssets()->getTexture("Mickey"));
 			}
-			else if (t == "Bomb") {
-				s.setTexture(*m_game->getAssets()->getTexture("Bomb"));
+			else if (t == "Bomb" || t == "Crate" || t == "Flame" || t == "Tile") {
+				s.setTexture(*m_game->getAssets()->getTexture(t));
 			}
 			else if (t == "Drop") {
 				std::string dn = "Drop";
@@ -374,6 +374,7 @@ void SceneGame::sRender() {
 	invT.setString(invS);
 	invT.setFillColor(sf::Color::Black);
 	invT.setFont(arialF);
+	invT.setStyle(sf::Text::Bold);
 	invT.setPosition(10, 10);
 	m_game->window().draw(invT);
 }

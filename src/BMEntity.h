@@ -122,10 +122,11 @@
 //
 // 
 // different types of bombs to implement:
-// - grenade
+// - grenade (this might be too op if all bombs 1shot players)
 // - random-time time bomb?
 // - atom bomb (destoys even tiles)
 // -  max-arm length bomb
+// - trap (apply slow or root to enemy)
 // 
 // 
 // other random drops:
