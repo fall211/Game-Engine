@@ -1,9 +1,16 @@
-#ifndef COMPONENT_H
-#define COMPONENT_H
+//
+//  Component.hpp
+//  ECS_Engine
+//
+//  Created by Tuukka Virtanen on 1/6/24.
+//
+
+#ifndef Component_hpp
+#define Component_hpp
 
 #include <string>
 #include <SFML/Graphics.hpp>
-#include "vec2.h"
+#include "vec2.hpp"
 
 
 class Component{
@@ -49,4 +56,11 @@ class CBCircle : public Component {
         CBCircle(float rin);
 };
 
-#endif // COMPONENT_H
+class CSprite : public Component {
+public:
+    sf::Sprite sprite;
+    
+    CSprite(const std::shared_ptr<sf::Texture> texin);
+};
+
+#endif /* Component_hpp */

@@ -1,14 +1,24 @@
+//
+//  Engine.cpp
+//  ECS_Engine
+//
+//  Created by Tuukka Virtanen on 1/6/24.
+//
+
 #include <SFML/Graphics.hpp>
 #include <random>
 #include <cmath>
 
-#include "EntityManager.h"
-#include "Engine.h"
-#include "Component.h"
-#include "EngineMath.h"
+#include "EntityManager.hpp"
+#include "Engine.hpp"
+#include "Component.hpp"
+#include "EngineMath.hpp"
 
 Engine::Engine(sf::RenderWindow& windowin) : m_window(windowin) {
     m_entityManager = std::make_shared<EntityManager>();
+    assets = std::make_shared<Assets>();
+    
+    assets->addTexture("test", "resources/test.png");
 }
 
 void Engine::mainLoop(){
@@ -47,7 +57,8 @@ void Engine::sEntityCreator(){
 
     e->cTransform = std::make_shared<CTransform>(Vec2(m_window.getSize().x/2 - 50, m_window.getSize().y/2 - 50), Vec2(randomX, randomY));
     e->cName = std::make_shared<CName>("default");
-    e->cShape = std::make_shared<CShape>(sf::RectangleShape(sf::Vector2f(100, 100)));
+//    e->cShape = std::make_shared<CShape>(sf::RectangleShape(sf::Vector2f(100, 100)));
+    e->cSprite = std::make_shared<CSprite>(assets->getTexture("test"));
     e->cLifetime = std::make_shared<CLifetime>(1.0f);
     e->cBBox = std::make_shared<CBBox>(100, 100);
 
@@ -59,6 +70,10 @@ void Engine::sRender(EntityList& entities){
         if (e->cShape){
             e->cShape->shape.setPosition(e->cTransform->position.x, e->cTransform->position.y);
             m_window.draw(e->cShape->shape);
+        }
+        else if (e->cSprite){
+            e->cSprite->sprite.setPosition(e->cTransform->position.x, e->cTransform->position.y);
+            m_window.draw(e->cSprite->sprite);
         }
     }
 }

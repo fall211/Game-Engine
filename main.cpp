@@ -1,9 +1,16 @@
+//
+//  main.cpp
+//  ECS_Engine
+//
+//  Created by Tuukka Virtanen on 1/6/24.
+//
+
 #include <iostream>
 #include <string>
 #include <SFML/Graphics.hpp>
 
-#include "Engine.h"
-#include "Debug.h"
+#include "Engine.hpp"
+#include "Debug.hpp"
 
 
 
@@ -55,4 +62,3 @@ int main() {
 
     return 0;
 }
-

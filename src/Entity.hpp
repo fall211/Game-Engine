@@ -1,10 +1,17 @@
-#ifndef ENTITY_H
-#define ENTITY_H
+//
+//  Entity.hpp
+//  ECS_Engine
+//
+//  Created by Tuukka Virtanen on 1/6/24.
+//
+
+#ifndef Entity_hpp
+#define Entity_hpp
 
 #include <stddef.h>
 #include <string>
 
-#include "Component.h"
+#include "Component.hpp"
 
 class Entity {
         const size_t m_id = 0;
@@ -20,6 +27,7 @@ class Entity {
         std::shared_ptr<CLifetime> cLifetime = nullptr;
         std::shared_ptr<CBBox> cBBox = nullptr;
         std::shared_ptr<CBCircle> cBCircle = nullptr;
+    std::shared_ptr<CSprite> cSprite = nullptr;
         
         friend class EntityManager;
 
@@ -29,4 +37,4 @@ class Entity {
         void destroy();
 };
 
-#endif // ENTITY_H
+#endif /* Entity_hpp */

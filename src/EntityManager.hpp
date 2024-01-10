@@ -1,11 +1,18 @@
-#ifndef ENTITYMANAGER_H
-#define ENTITYMANAGER_H
+//
+//  EntityManager.hpp
+//  ECS_Engine
+//
+//  Created by Tuukka Virtanen on 1/6/24.
+//
+
+#ifndef EntityManager_hpp
+#define EntityManager_hpp
 
 #include <stddef.h>
 #include <string>
 #include <map>
 
-#include "Entity.h"
+#include "Entity.hpp"
 
 typedef std::vector<std::shared_ptr<Entity>> EntityList;
 typedef std::map<std::string, EntityList> EntityMap;
@@ -25,4 +32,4 @@ class EntityManager {
 
 };
 
-#endif // ENTITYMANAGER_H
+#endif /* EntityManager_hpp */

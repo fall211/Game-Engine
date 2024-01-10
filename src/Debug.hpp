@@ -1,8 +1,14 @@
-#ifndef DEBUG_H
-#define DEBUG_H
+//
+//  Debug.hpp
+//  ECS_Engine
+//
+//  Created by Tuukka Virtanen on 1/6/24.
+//
+
+#ifndef Debug_h
+#define Debug_h
 
 #include <iostream>
-
 
 class Debug {
     public:
@@ -11,4 +17,4 @@ class Debug {
         }
 };
 
-#endif // DEBUG_H
+#endif /* Debug_h */

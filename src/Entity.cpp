@@ -1,7 +1,14 @@
+//
+//  Entity.cpp
+//  ECS_Engine
+//
+//  Created by Tuukka Virtanen on 1/6/24.
+//
+
+#include "Entity.hpp"
+
 #include <stddef.h>
 #include <string>
-
-#include "Entity.h"
 
 Entity::Entity(const std::string& tag, size_t id) : m_tag(tag), m_id(id) {}
 const size_t Entity::getId() { return m_id; }

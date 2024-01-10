@@ -1,4 +1,11 @@
-#include "EntityManager.h"
+//
+//  EntityManager.cpp
+//  ECS_Engine
+//
+//  Created by Tuukka Virtanen on 1/6/24.
+//
+
+#include "EntityManager.hpp"
 
 EntityManager::EntityManager() {
     m_entities = EntityList();

@@ -1,5 +1,12 @@
-#ifndef ENGINEMATH_H
-#define ENGINEMATH_H
+//
+//  EngineMath.hpp
+//  ECS_Engine
+//
+//  Created by Tuukka Virtanen on 1/6/24.
+//
+
+#ifndef EngineMath_h
+#define EngineMath_h
 
 
 class EngineMath {
@@ -10,5 +17,4 @@ class EngineMath {
 };
 
 
-
-#endif
+#endif /* EngineMath_h */

@@ -1,5 +1,12 @@
-#ifndef VEC2_H
-#define VEC2_H
+//
+//  vec2.hpp
+//  ECS_Engine
+//
+//  Created by Tuukka Virtanen on 1/6/24.
+//
+
+#ifndef vec2_h
+#define vec2_h
 
 class Vec2 {
 public:
@@ -57,4 +64,4 @@ public:
     }
 };
 
-#endif // VEC2_H
+#endif /* vec2_h */
