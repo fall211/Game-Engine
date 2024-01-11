@@ -14,27 +14,80 @@
 #include "Component.hpp"
 #include "EngineMath.hpp"
 
-Engine::Engine(sf::RenderWindow& windowin) : m_window(windowin) {
+Engine::Engine() {
     m_entityManager = std::make_shared<EntityManager>();
     assets = std::make_shared<Assets>();
     
     assets->addTexture("test", "resources/test.png");
+    
+    m_window.create(sf::VideoMode(1280, 720), "game engine test");
+    m_window.setFramerateLimit(60);
+    m_clock = sf::Clock();
+    Debug::log("init done");
+    
+}
+
+sf::RenderWindow& Engine::getWindow(){
+    return m_window;
 }
 
 void Engine::mainLoop(){
-    m_entityManager->update();
-    sLifetime(m_entityManager->getEntities());
-    // sInput(m_entityManager->getEntities());
-    // sEntityCreator();
-    sMovement(m_entityManager->getEntities());
-    sCollisionHandler(m_entityManager->getEntities());
-    sRender(m_entityManager->getEntities());
-    m_currentFrame++;
+    
+    while (m_window.isOpen()){
+        deltaTime = m_clock.restart().asSeconds();
+        m_window.clear(sf::Color::Black);
+        
+        m_entityManager->update();
+        
+        sRawInput();
+        sLifetime(m_entityManager->getEntities());
+        // sEntityCreator();
+        sMovement(m_entityManager->getEntities());
+        sCollisionHandler(m_entityManager->getEntities());
+        sRender(m_entityManager->getEntities());
+        
+        m_currentFrame++;
+        
+        m_window.display();
+        std::string msg = "FPS: " + std::to_string(1.0f/(deltaTime));
+        Debug::log(msg);
+    }
 }
 
 const size_t Engine::getCurrentFrame(){
     return m_currentFrame;
 }
+
+void Engine::sRawInput(){
+    sf::Event event;
+    while (m_window.pollEvent(event)){
+        if (event.type == sf::Event::Closed) m_window.close();
+
+        if (event.type == sf::Event::KeyPressed) {
+
+            switch(event.key.scancode){
+                case sf::Keyboard::Scan::Escape:
+                    break;
+                case sf::Keyboard::Scan::Space:
+                    sEntityCreator();
+                    break;
+                default:
+                    break;
+            }
+        }
+        if (event.type == sf::Event::MouseButtonPressed){
+            if (event.mouseButton.button == sf::Mouse::Left){
+                std::string msg = "left";
+                Debug::log(msg);
+            }
+            if (event.mouseButton.button == sf::Mouse::Right){
+                std::string msg = "right";
+                Debug::log(msg);
+            }
+        }
+    }
+}
+
 
 void Engine::sMovement(EntityList& entities){
     for (auto& e : entities){

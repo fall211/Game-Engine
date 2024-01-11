@@ -38,28 +38,27 @@ class CShape : public Component{
 };
 
 class CLifetime : public Component {
-    public:
-        float lifetime = 1.0f;
-        CLifetime(float lifetimein);
+public:
+    float lifetime = 1.0f;
+    CLifetime(float lifetimein);
 };
 
 class CBBox : public Component {
-    public:
-        float w = 1.0f;
-        float h = 1.0f;
-        CBBox(float win, float hin);
+public:
+    float w = 1.0f;
+    float h = 1.0f;
+    CBBox(float win, float hin);
 };
 
 class CBCircle : public Component {
-    public:
-        float radius = 1;
-        CBCircle(float rin);
+public:
+    float radius = 1;
+    CBCircle(float rin);
 };
 
 class CSprite : public Component {
 public:
     sf::Sprite sprite;
-    
     CSprite(const std::shared_ptr<sf::Texture> texin);
 };
 

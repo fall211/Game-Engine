@@ -15,17 +15,24 @@
 
 class Engine {
     std::shared_ptr<EntityManager> m_entityManager;
-    sf::RenderWindow& m_window;
+    sf::RenderWindow m_window;
+    sf::Clock m_clock;
+
     size_t m_currentFrame = 0;
 
 public:
     std::shared_ptr<Assets> assets;
     float deltaTime = 0.0f;
 
-    Engine(sf::RenderWindow& windowin);
-
+    Engine();
+    
+    sf::RenderWindow& getWindow();
+    
     void mainLoop();
     const size_t getCurrentFrame();
+    
+    void sRawInput();
+    
     void sMovement(EntityList& entities);
     void sEntityCreator();
     void sRender(EntityList& entities);
