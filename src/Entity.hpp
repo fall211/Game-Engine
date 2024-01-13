@@ -10,31 +10,53 @@
 
 #include <stddef.h>
 #include <string>
+#include <tuple>
+#include <unordered_map>
+#include <typeindex>
+#include <memory>
 
 #include "Component.hpp"
+
 
 class Entity {
     const size_t m_id = 0;
     const std::string m_tag = "default";
     bool m_active = true;
+    std::unordered_map<std::type_index, std::shared_ptr<Component>> m_components;
 
+    friend class EntityManager;
     Entity(const std::string& tag, size_t id);
 
 public:
-    std::shared_ptr<CTransform> cTransform = nullptr;
-    std::shared_ptr<CName> cName = nullptr;
-    std::shared_ptr<CShape> cShape = nullptr;
-    std::shared_ptr<CLifetime> cLifetime = nullptr;
-    std::shared_ptr<CBBox> cBBox = nullptr;
-    std::shared_ptr<CBCircle> cBCircle = nullptr;
-    std::shared_ptr<CSprite> cSprite = nullptr;
-        
-    friend class EntityManager;
-
+    
     const size_t getId();
     const std::string getTag();
     const bool isActive();
     void destroy();
+    
+    template <typename T, typename... Args>
+    T& addComponent(Args&&... args) {
+        std::shared_ptr<T> component = std::make_shared<T>(std::forward<Args>(args)...);
+        m_components[typeid(T)] = std::move(component);
+        return *static_cast<T*>(m_components[typeid(T)].get());
+    }
+
+    template <typename T>
+    void removeComponent() {
+        m_components.erase(typeid(T));
+    }
+
+    template <typename T>
+    T& getComponent() const {
+        auto it = m_components.find(typeid(T));
+        return *dynamic_cast<T*>(it->second.get());
+    }
+
+    template <typename T>
+    bool hasComponent() const {
+        return m_components.find(typeid(T)) != m_components.end();
+    }
+
 };
 
 #endif /* Entity_hpp */

@@ -14,6 +14,10 @@
 
 
 class Component{
+public:
+    bool has = false;
+    Component(){};
+    virtual ~Component(){};
 };
 
 class CTransform : public Component{
@@ -21,7 +25,6 @@ class CTransform : public Component{
         Vec2 position = Vec2(0,0);
         Vec2 velocity = Vec2(0,0);
 
-        CTransform(){};
         CTransform(const Vec2& positionin, const Vec2& velocityin);
 };
 

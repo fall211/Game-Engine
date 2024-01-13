@@ -91,8 +91,9 @@ void Engine::sRawInput(){
 
 void Engine::sMovement(EntityList& entities){
     for (auto& e : entities){
-        if (e->cTransform){
-            e->cTransform->position += e->cTransform->velocity * deltaTime * 100;
+        if (e->hasComponent<CTransform>()){
+            auto& transform = e->getComponent<CTransform>();
+            transform.position += transform.velocity * deltaTime * 100;
         }
     }
 }
@@ -108,34 +109,34 @@ void Engine::sEntityCreator(){
     float randomX = dis(gen);
     float randomY = dis(gen);
 
-    e->cTransform = std::make_shared<CTransform>(Vec2(m_window.getSize().x/2 - 50, m_window.getSize().y/2 - 50), Vec2(randomX, randomY));
-    e->cName = std::make_shared<CName>("default");
-//    e->cShape = std::make_shared<CShape>(sf::RectangleShape(sf::Vector2f(100, 100)));
-    e->cSprite = std::make_shared<CSprite>(assets->getTexture("test"));
-    e->cLifetime = std::make_shared<CLifetime>(1.0f);
-    e->cBBox = std::make_shared<CBBox>(100, 100);
+    e->addComponent<CTransform>(Vec2(m_window.getSize().x/2 - 50, m_window.getSize().y/2 - 50), Vec2(randomX, randomY));
+    e->addComponent<CName>("default");
+//    e->addComponent<CShape>(sf::RectangleShape(sf::Vector2f(100, 100)));
+    e->addComponent<CSprite>(assets->getTexture("test"));
+    e->addComponent<CLifetime>(1.0f);
+    e->addComponent<CBBox>(100, 100);
 
 
 }
 
 void Engine::sRender(EntityList& entities){
     for (auto& e : entities){
-        if (e->cShape){
-            e->cShape->shape.setPosition(e->cTransform->position.x, e->cTransform->position.y);
-            m_window.draw(e->cShape->shape);
+        if (e->hasComponent<CShape>()){
+            e->getComponent<CShape>().shape.setPosition(e->getComponent<CTransform>().position.x, e->getComponent<CTransform>().position.y);
+            m_window.draw(e->getComponent<CShape>().shape);
         }
-        else if (e->cSprite){
-            e->cSprite->sprite.setPosition(e->cTransform->position.x, e->cTransform->position.y);
-            m_window.draw(e->cSprite->sprite);
+        else if (e->hasComponent<CSprite>()){
+            e->getComponent<CSprite>().sprite.setPosition(e->getComponent<CTransform>().position.x, e->getComponent<CTransform>().position.y);
+            m_window.draw(e->getComponent<CSprite>().sprite);
         }
     }
 }
 
 void Engine::sLifetime(EntityList& entities){
     for (auto& e : entities){
-        if (e->cLifetime){
-            e->cLifetime->lifetime -= deltaTime;
-            if (e->cLifetime->lifetime <= 0){
+        if (e->hasComponent<CLifetime>()){
+            e->getComponent<CLifetime>().lifetime -= deltaTime;
+            if (e->getComponent<CLifetime>().lifetime <= 0){
                 e->destroy();
             }
         }
@@ -150,14 +151,14 @@ void Engine::sCollisionHandler(EntityList& entities) {
     currently return false for shape mismatches.
     **/
     for (auto& e0 : entities) {
-        if (e0->cBBox) { // ignore entities with no bounding box
+        if (e0->hasComponent<CBBox>()) { // ignore entities with no bounding box
             for (auto& e1 : entities) {
                 if (isBBoxCollision(e0, e1)) {
                     // resolve collision for e0 and e1
                     Debug::log("Collision detected between " + std::to_string(e0->getId()) + " and " + std::to_string(e1->getId()));
                 }
             }
-        } else if (e0->cBCircle) {
+        } else if (e0->hasComponent<CBCircle>()) {
             for (auto& e1 : entities) {
                 if (isBCircleCollision(e0, e1)) {
                 // resolve collision between two circles
@@ -171,22 +172,22 @@ bool Engine::isBBoxCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entity>
     /**
     Detects whether the bounding boxes of e0 and e1 overlap.
     **/
-    if (!(e1->cBBox)) return false;
+    if (!(e1->hasComponent<CBBox>())) return false;
     if (e0->getId() == e1->getId()) return false;
-    Vec2 dr = e0->cTransform->position - e1->cTransform->position;
-    return std::abs(dr.y) < e0->cBBox->h && std::abs(dr.x) < e0->cBBox->w;
+    Vec2 dr = e0->getComponent<CTransform>().position - e1->getComponent<CTransform>().position;
+    return std::abs(dr.y) < e0->getComponent<CBBox>().h && std::abs(dr.x) < e0->getComponent<CBBox>().w;
 }
 
 bool Engine::isBCircleCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entity> e1) {
     /**
     Detects whether the bounding circles of the two entities e0 and e1 overlap;
     **/
-    if (!(e1->cBCircle)) return false;
+    if (!(e1->hasComponent<CBCircle>())) return false;
     if (e0->getId() == e1->getId()) return false;
-    float x1 = e0->cTransform->position.x;
-    float y1 = e0->cTransform->position.y;
-    float x2 = e1->cTransform->position.x;
-    float y2 = e1->cTransform->position.y;
-    float rsum = e0->cBCircle->radius + e1->cBCircle->radius;
+    float x1 = e0->getComponent<CTransform>().position.x;
+    float y1 = e0->getComponent<CTransform>().position.y;
+    float x2 = e1->getComponent<CTransform>().position.x;
+    float y2 = e1->getComponent<CTransform>().position.y;
+    float rsum = e0->getComponent<CBCircle>().radius + e1->getComponent<CBCircle>().radius;
     return EngineMath::dist2(x1, y1, x2, y2) <= rsum*rsum;
 }
