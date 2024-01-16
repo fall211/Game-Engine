@@ -10,7 +10,7 @@
 
 #include <string>
 #include <SFML/Graphics.hpp>
-#include "vec2.hpp"
+#include "Math.hpp"
 
 
 class Component{
@@ -22,16 +22,10 @@ public:
 
 class CTransform : public Component{
     public:
-        Vec2 position = Vec2(0,0);
-        Vec2 velocity = Vec2(0,0);
+        Vector2 position = Vector2(0,0);
+        Vector2 velocity = Vector2(0,0);
 
-        CTransform(const Vec2& positionin, const Vec2& velocityin);
-};
-
-class CName : public Component{
-    public:
-        std::string name;
-        CName(const std::string& namein);
+        CTransform(const Vector2& positionin, const Vector2& velocityin);
 };
 
 class CShape : public Component{
@@ -63,6 +57,15 @@ class CSprite : public Component {
 public:
     sf::Sprite sprite;
     CSprite(const std::shared_ptr<sf::Texture> texin);
+};
+
+class CFollowMouse : public Component {
+};
+
+class CPlayerControls : public Component {
+public:
+    float moveSpeed = 0.0f;
+    CPlayerControls(const float speedin);
 };
 
 #endif /* Component_hpp */

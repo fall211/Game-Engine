@@ -7,10 +7,8 @@
 
 #include "Component.hpp"
 
-CTransform::CTransform(const Vec2& positionin, const Vec2& velocityin)
+CTransform::CTransform(const Vector2& positionin, const Vector2& velocityin)
     : position(positionin), velocity(velocityin) {}
-
-CName::CName(const std::string& namein) : name(namein) {}
 
 CShape::CShape(const sf::RectangleShape& shapein) : shape(shapein) {}
 
@@ -23,3 +21,5 @@ CBCircle::CBCircle(float rin) : radius(rin) {}
 CSprite::CSprite(const std::shared_ptr<sf::Texture> texin){
     sprite.setTexture(*texin);
 }
+
+CPlayerControls::CPlayerControls(const float speedin) : moveSpeed(speedin){}
