@@ -11,10 +11,26 @@
 #include <string>
 
 
-Entity::Entity(const std::string& tag, size_t id) : m_tag(tag), m_id(id) {}
+Entity::Entity(const TagList& tag, size_t id) : m_tags(tag), m_id(id) {}
+
 const size_t Entity::getId() { return m_id; }
-const std::string Entity::getTag() { return m_tag; }
+const TagList& Entity::getTags() { return m_tags; }
 const bool Entity::isActive() { return m_active; }
 void Entity::destroy() { m_active = false; }
+void Entity::addTag(const std::string& tag) {
+    // Check if the tag is not already present
+    if (std::find(m_tags.begin(), m_tags.end(), tag) == m_tags.end()) {
+        m_tags.push_back(tag);
+    }
+}
+
+void Entity::removeTag(const std::string& tag) {
+    auto it = std::find(m_tags.begin(), m_tags.end(), tag);
+    if (it != m_tags.end()) {
+        m_tags.erase(it);
+    }
+}
+
+
 
 

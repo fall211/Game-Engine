@@ -17,26 +17,24 @@ void EntityManager::update(){
     // add new entities
     for (auto e : m_entitiesToAdd){
         m_entities.push_back(e);
-        m_entityMap[e->getTag()].push_back(e);
+        auto& tags = e->getTags();
+        for (auto& tag : tags){
+            m_entityMap[tag].push_back(e);
+        }
     }
     m_entitiesToAdd.clear();
 
-    // Erase all inactive entities from m_entities
-    m_entities.erase(
-        std::remove_if(m_entities.begin(), m_entities.end(),
-            [&](const auto& entity) { return !entity->isActive(); }),
-        m_entities.end());
-
-    for (auto& pair : m_entityMap) {
-        EntityList activeEntities;
-        std::copy_if(pair.second.begin(), pair.second.end(), std::back_inserter(activeEntities),
-            [](const auto& entity) { return entity->isActive(); });
-        pair.second.swap(activeEntities);
+    // Erase all inactive entities from m_entities and m_entityMap
+    for (auto e: m_entities){
+        if (!e->isActive()){
+            destroyEntity(e);
+        }
     }
+    
 }
 
-std::shared_ptr<Entity> EntityManager::addEntity(const std::string& tag){
-    auto entity = std::shared_ptr<Entity>(new Entity(tag, m_idCounter++));
+std::shared_ptr<Entity> EntityManager::addEntity(const TagList& tags){
+    auto entity = std::shared_ptr<Entity>(new Entity(tags, m_idCounter++));
     m_entitiesToAdd.push_back(entity);
     return entity;
 }
@@ -48,3 +46,24 @@ EntityList& EntityManager::getEntities(){
 EntityList& EntityManager::getEntities(const std::string& tag){
     return m_entityMap[tag];
 }
+
+void EntityManager::addTagToEntity(std::shared_ptr<Entity> entity, const std::string& tag) {
+    entity->addTag(tag);
+    m_entityMap[tag].push_back(entity);
+}
+
+void EntityManager::removeTagFromEntity(std::shared_ptr<Entity> entity, const std::string& tag) {
+    entity->removeTag(tag);
+    auto& entityListWithTag = m_entityMap[tag];
+    entityListWithTag.erase(std::remove(entityListWithTag.begin(), entityListWithTag.end(), entity), entityListWithTag.end());
+}
+
+void EntityManager::destroyEntity(std::shared_ptr<Entity> entity) {
+    for (const auto& tag : entity->getTags()) {
+        auto& entityListWithTag = m_entityMap[tag];
+        entityListWithTag.erase(std::remove(entityListWithTag.begin(), entityListWithTag.end(), entity), entityListWithTag.end());
+    }
+
+    m_entities.erase(std::remove(m_entities.begin(), m_entities.end(), entity), m_entities.end());
+}
+

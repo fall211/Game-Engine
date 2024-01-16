@@ -17,22 +17,26 @@
 
 #include "Component.hpp"
 
+typedef std::vector<std::string> TagList;
+
 
 class Entity {
     const size_t m_id = 0;
-    const std::string m_tag = "default";
+    TagList m_tags;
     bool m_active = true;
     std::unordered_map<std::type_index, std::shared_ptr<Component>> m_components;
 
     friend class EntityManager;
-    Entity(const std::string& tag, size_t id);
-
-public:
+    Entity(const TagList& tags, size_t id);
+    void addTag(const std::string& tag);
+    void removeTag(const std::string& tag);
     
+public:
     const size_t getId();
-    const std::string getTag();
+    const TagList& getTags();
     const bool isActive();
     void destroy();
+
     
     template <typename T, typename... Args>
     T& addComponent(Args&&... args) {
