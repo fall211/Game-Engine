@@ -18,9 +18,7 @@
 int main() {
 
     Engine engine = Engine();
-    while (engine.getWindow().isOpen()){
-        engine.mainLoop();
-    }
+    engine.mainLoop();
 
     return 0;
 }
