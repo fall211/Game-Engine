@@ -8,6 +8,13 @@
 #ifndef Physics_hpp
 #define Physics_hpp
 
-#include <stdio.h>
+#include "Entity.hpp"
+
+class Physics2D {
+public:
+    static bool isBBoxCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entity> e1);
+    static bool isBCircleCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entity> e1);
+    static Vector2 bBoxCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entity> e1);
+};
 
 #endif /* Physics_hpp */
