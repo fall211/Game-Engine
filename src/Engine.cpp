@@ -10,7 +10,6 @@
 #include <random>
 #include <cmath>
 
-#include "EntityManager.hpp"
 #include "Engine.hpp"
 #include "Component.hpp"
 #include "Math.hpp"
@@ -19,8 +18,7 @@
 Engine::Engine() {
     m_entityManager = std::make_shared<EntityManager>();
     assets = std::make_shared<Assets>();
-    m_keymap = KeyMap();
-    
+    input = std::make_shared<Input>();
     assets->addTexture("test", "resources/test.png");
     
     m_window.create(sf::VideoMode(1280, 720), "game engine test");
@@ -30,19 +28,13 @@ Engine::Engine() {
     sCreatePlayer();
     sEntityCreator();
     
-    registerToKeyMap({sf::Keyboard::Scancode::W, sf::Keyboard::Scancode::Up}, {"move", "up"});
-    registerToKeyMap({sf::Keyboard::Scancode::S, sf::Keyboard::Scancode::Down}, {"move", "down"});
-    registerToKeyMap({sf::Keyboard::Scancode::A, sf::Keyboard::Scancode::Left}, {"move", "left"});
-    registerToKeyMap({sf::Keyboard::Scancode::D, sf::Keyboard::Scancode::Right}, {"move", "right"});
+    input->makeAction("up", {sf::Keyboard::Scan::Scancode::W, sf::Keyboard::Scan::Scancode::Up});
+    input->makeAction("down", {sf::Keyboard::Scan::Scancode::S, sf::Keyboard::Scan::Scancode::Down});
+    input->makeAxis("moveX", sf::Keyboard::Scan::Scancode::D, sf::Keyboard::Scan::Scancode::A);
+    input->makeAxis("moveY", sf::Keyboard::Scan::Scancode::S, sf::Keyboard::Scan::Scancode::W);
     
     Debug::log("init completed");
     
-}
-
-void Engine::registerToKeyMap(std::vector<int> keycodes, std::vector<std::string> action){
-    for (auto& code : keycodes){
-        m_keymap.insert({code, action});
-    }
 }
 
 sf::RenderWindow& Engine::getWindow(){
@@ -55,20 +47,22 @@ void Engine::mainLoop(){
         deltaTime = m_clock.restart().asSeconds();
         m_window.clear(sf::Color::White);
         
+        /// Updates
         m_entityManager->update();
-        
+        input->update(getWindow());
         sRawInput();
+
+        /// Systems (unordered)
         sLifetime(m_entityManager->getEntities());
+        sPlayerController(m_entityManager->getEntities("player").front());
+        
+        /// Systems (ordered)
         sMovement(m_entityManager->getEntities("dynamic"));
-        sCollisionHandler(m_entityManager->getEntities(), m_entityManager->getEntities("test"));
+        sCollisionHandler(m_entityManager->getEntities(), m_entityManager->getEntities("dynamic"));
         sRender(m_entityManager->getEntities());
         
         m_currentFrame++;
-        
         m_window.display();
-        
-//        std::string msg = "FPS: " + std::to_string(1.0f/(deltaTime));
-//        Debug::log(msg);
     }
 }
 
@@ -79,51 +73,23 @@ const size_t Engine::getCurrentFrame(){
     return m_currentFrame;
 }
 
+void Engine::sPlayerController(std::shared_ptr<Entity> player){
+    Vector2 moveVector = Vector2(0,0);
+
+    moveVector.y = input->getAxis("moveY");
+    moveVector.x = input->getAxis("moveX");
+    if (moveVector.length() > 0) moveVector.normalize();
+    
+    player->getComponent<CTransform>().position += moveVector * player->getComponent<CPlayerControls>().moveSpeed;
+}
+
 void Engine::sRawInput(){
     sf::Event event;
     while (m_window.pollEvent(event)){
         if (event.type == sf::Event::Closed) m_window.close();
-        if (event.type == sf::Event::KeyPressed || event.type == sf::Event::KeyReleased) {
-
-            if (m_keymap.count(event.key.code) == 0) continue;
-            
-            const KeyEventType keyEventType = (event.type == sf::Event::KeyPressed) ? KeyEventType::START : KeyEventType::END;
-            
-
-            Action action = Action(m_keymap[event.key.code][0], m_keymap[event.key.code][1], keyEventType);
-            
-            sInputHandler(action, m_entityManager->getEntities("player").front());
-        }
     }
 }
 
-void Engine::sInputHandler(Action& action, std::shared_ptr<Entity> player){
-    if (action.type == "move"){
-        if (action.input.keyEvent == KeyEventType::START){
-            if (action.input.value == "up") player->getComponent<CTransform>().velocity.y = -player->getComponent<CPlayerControls>().moveSpeed;
-            else if (action.input.value == "down") player->getComponent<CTransform>().velocity.y = player->getComponent<CPlayerControls>().moveSpeed;
-            else if (action.input.value == "left") player->getComponent<CTransform>().velocity.x = -player->getComponent<CPlayerControls>().moveSpeed;
-            else if (action.input.value == "right") player->getComponent<CTransform>().velocity.x = player->getComponent<CPlayerControls>().moveSpeed;
-
-        }
-        if (action.input.keyEvent == KeyEventType::END){
-            if (action.input.value == "up") player->getComponent<CTransform>().velocity.y = 0;
-            else if (action.input.value == "down") player->getComponent<CTransform>().velocity.y = 0;
-            else if (action.input.value == "left") player->getComponent<CTransform>().velocity.x = 0;
-            else if (action.input.value == "right") player->getComponent<CTransform>().velocity.x = 0;
-        }
-        // do movement
-    }
-    if (action.type == "ui") {
-        // do ui controls
-    }
-    if (action.type == "mouse") {
-        // do mouse input stuff
-    }
-    if (action.type == "alphanumeric") {
-        // any other input
-    }
-}
 
 void Engine::sMovement(EntityList& entities){
     for (auto& e : entities){
@@ -161,9 +127,9 @@ void Engine::sCreatePlayer(){
     m_entityManager->addTagToEntity(e, "test");
     e->addComponent<CTransform>(Vector2::zero(), Vector2::zero());
     e->addComponent<CSprite>(assets->getTexture("test"));
-//    e->addComponent<CFollowMouse>();
+    //e->addComponent<CFollowMouse>();
     e->addComponent<CBBox>(64, 64);
-    e->addComponent<CPlayerControls>(2.0f);
+    e->addComponent<CPlayerControls>(10.0f);
 }
 
 
