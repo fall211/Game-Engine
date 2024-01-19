@@ -32,13 +32,14 @@ Engine::Engine() {
     input->makeAxis("moveX", sf::Keyboard::Scan::Scancode::D, sf::Keyboard::Scan::Scancode::A);
     input->makeAxis("moveY", sf::Keyboard::Scan::Scancode::S, sf::Keyboard::Scan::Scancode::W);
     
+    Vector2 vec = Vector2().zero();
+    vec.clamp(1, 1);
+    
     Debug::log("init completed");
     
 }
 
-sf::RenderWindow& Engine::getWindow(){
-    return m_window;
-}
+
 
 void Engine::mainLoop(){
     
@@ -49,7 +50,6 @@ void Engine::mainLoop(){
         /// Updates
         m_entityManager->update();
         input->update(getWindow());
-        sRawInput();
 
         /// Systems (unordered)
         sLifetime(m_entityManager->getEntities());
@@ -68,9 +68,6 @@ void Engine::mainLoop(){
 
 
 
-const size_t Engine::getCurrentFrame(){
-    return m_currentFrame;
-}
 
 void Engine::sPlayerController(std::shared_ptr<Entity> player){
     Vector2 moveVector = Vector2(0,0);
@@ -80,13 +77,6 @@ void Engine::sPlayerController(std::shared_ptr<Entity> player){
     if (moveVector.magnitude() > 0) moveVector.normalize();
     
     player->getComponent<CTransform>().position += moveVector * player->getComponent<CPlayerControls>().moveSpeed;
-}
-
-void Engine::sRawInput(){
-    sf::Event event;
-    while (m_window.pollEvent(event)){
-        if (event.type == sf::Event::Closed) m_window.close();
-    }
 }
 
 
@@ -157,12 +147,6 @@ void Engine::sLifetime(EntityList& entities){
 }
 
 void Engine::sCollisionHandler(EntityList& entities, EntityList& dynamicEntities) {
-    /**
-    Handles collisions between all entities in the system.
-    Currently supports rectangle-rectangle collisions and circle-circle collisions
-    rectangle-circle collisions are no supported; functions that detect collisions
-    currently return false for shape mismatches.
-    **/
     for (auto& e0 : dynamicEntities) {
         if (e0->hasComponent<CBBox>()) { // ignore entities with no bounding box
             for (auto& e1 : entities) {

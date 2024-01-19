@@ -30,21 +30,54 @@ public:
 
     Engine();
     
-    sf::RenderWindow& getWindow();
-    
+    /**
+     * The main loop of the engine. Very first thing called at beginning of each frame.
+     */
     void mainLoop();
+    
+    /**
+     * Gets the current frame of the simulation.
+     *
+     * @return The current frame.
+     */
+    const size_t getCurrentFrame() { return m_currentFrame; }
+    
+    /**
+     * Gets the active SFML window..
+     *
+     * @return The SFML window.
+     */
+    sf::RenderWindow& getWindow() { return m_window; }
 
-    const size_t getCurrentFrame();
-    
-    void sRawInput();
-    
+    /**
+     * Movement system of the engine.
+     * Gets the transforms of each entity and adds its velocity to its position.
+     *
+     * @param entities The list of all the entities.
+     */
     void sMovement(EntityList& entities);
 
-    void sEntityCreator();
+    
+    /**
+     * Render system of the engine.
+     * Draws all sprites to the window.
+     *
+     * @param entities The list of all the entities.
+     */
     void sRender(EntityList& entities);
-    void sLifetime(EntityList& entities);
+    
+    /**
+     * Collision system of the engine.
+     * Handles all the collisions in the simulation.
+     *
+     * @param entities The list of all the entities.
+     * @param dynamicEntities The list of all dynamic entities that will be checked for collisions with all entities.
+     */
     void sCollisionHandler(EntityList& entities, EntityList& dynamicEntities);
-    void sCreatePlayer();
+    
     void sPlayerController(std::shared_ptr<Entity> player);
+    void sLifetime(EntityList& entities);
+    void sEntityCreator();
+    void sCreatePlayer();
 };
 #endif /* Engine_hpp */
