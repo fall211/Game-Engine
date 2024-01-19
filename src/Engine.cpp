@@ -28,8 +28,7 @@ Engine::Engine() {
     sCreatePlayer();
     sEntityCreator();
     
-    input->makeAction("up", {sf::Keyboard::Scan::Scancode::W, sf::Keyboard::Scan::Scancode::Up});
-    input->makeAction("down", {sf::Keyboard::Scan::Scancode::S, sf::Keyboard::Scan::Scancode::Down});
+
     input->makeAxis("moveX", sf::Keyboard::Scan::Scancode::D, sf::Keyboard::Scan::Scancode::A);
     input->makeAxis("moveY", sf::Keyboard::Scan::Scancode::S, sf::Keyboard::Scan::Scancode::W);
     
@@ -78,7 +77,7 @@ void Engine::sPlayerController(std::shared_ptr<Entity> player){
 
     moveVector.y = input->getAxis("moveY");
     moveVector.x = input->getAxis("moveX");
-    if (moveVector.length() > 0) moveVector.normalize();
+    if (moveVector.magnitude() > 0) moveVector.normalize();
     
     player->getComponent<CTransform>().position += moveVector * player->getComponent<CPlayerControls>().moveSpeed;
 }

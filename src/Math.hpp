@@ -18,29 +18,17 @@ public:
 
     Vector2(float x = 0.0f, float y = 0.0f) : x(x), y(y) {}
     
+    float dot(const Vector2& other) const;
+    float magnitude() const;
+    Vector2 normalized() const;
+    void normalize();
+    void clamp01();
+    void clamp(const float lower, const float upper);
+    
     static Vector2 zero(){
         return Vector2(0.0f, 0.0f);
     }
-
-    float dot(const Vector2& other) const {
-        return x * other.x + y * other.y;
-    }
-
-    float length() const {
-        return sqrtf(x * x + y * y);
-    }
-
-    Vector2 normalized() const {
-        float len = length();
-        return Vector2(x / len, y / len);
-    }
-
-    Vector2& normalize() {
-        float len = length();
-        x /= len;
-        y /= len;
-        return *this;
-    }
+    
     Vector2 operator+(const Vector2& other) const {
         return Vector2(x + other.x, y + other.y);
     }

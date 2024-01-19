@@ -44,8 +44,6 @@ public:
     void sRender(EntityList& entities);
     void sLifetime(EntityList& entities);
     void sCollisionHandler(EntityList& entities, EntityList& dynamicEntities);
-    bool isBBoxCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entity> e1);
-    bool isBCircleCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entity> e1);
     void sCreatePlayer();
     void sPlayerController(std::shared_ptr<Entity> player);
 };
