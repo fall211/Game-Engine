@@ -10,7 +10,7 @@
 
 InputAxis::InputAxis(const std::string& name, int pKey, int nKey) : name(name), postiveKey(pKey), negativeKey(nKey){}
 
-Key::Key(const int code) : code(code) {
+Key::Key() {
     justPressed = false;
     justReleased = false;
     pressed = false;
@@ -77,7 +77,7 @@ void Input::makeAction(const std::string& name, std::vector<int> keycodes){
     m_actionsMap.insert({name, keycodes});
     for (auto& k : keycodes){
         if (m_keyMap.count(k) == 0){
-            std::shared_ptr key = std::make_shared<Key>(k);
+            std::shared_ptr key = std::make_shared<Key>();
             m_keyMap.insert({k, key});
         }
     }
@@ -114,11 +114,11 @@ void Input::makeAxis(const std::string& name, const int positiveKey, const int n
     
     // check if the keys are registered already, if not, add them to m_keyMap
     if (m_keyMap.count(positiveKey) == 0){
-        std::shared_ptr key = std::make_shared<Key>(positiveKey);
+        std::shared_ptr<Key> key = std::make_shared<Key>();
         m_keyMap.insert({positiveKey, key});
     }
     if (m_keyMap.count(negativeKey) == 0){
-        std::shared_ptr key = std::make_shared<Key>(negativeKey);
+        std::shared_ptr<Key> key = std::make_shared<Key>();
         m_keyMap.insert({negativeKey, key});
     }
 

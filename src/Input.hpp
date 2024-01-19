@@ -22,12 +22,11 @@ struct InputAxis {
 };
 
 struct Key {
-    int code;
     bool justPressed;
     bool justReleased;
     bool pressed;
     
-    Key(const int code);
+    Key();
 };
 
 typedef std::map<std::string, std::vector<int>> ActionsMap;
