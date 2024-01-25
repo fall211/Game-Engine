@@ -9,8 +9,8 @@
 
 int main() {
 
-    Engine engine = Engine();
-    engine.mainLoop();
+    std::shared_ptr<Engine> engine = std::make_shared<Engine>();
+    engine->mainLoop();
 
     return 0;
 }

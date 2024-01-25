@@ -28,7 +28,8 @@ Engine::Engine() {
     sCreatePlayer();
     sEntityCreator();
     
-
+    m_scene = std::make_shared<GameScene>(m_window);
+    
     input->makeAxis("moveX", sf::Keyboard::Scan::Scancode::D, sf::Keyboard::Scan::Scancode::A);
     input->makeAxis("moveY", sf::Keyboard::Scan::Scancode::S, sf::Keyboard::Scan::Scancode::W);
     
@@ -47,6 +48,7 @@ void Engine::mainLoop(){
         deltaTime = m_clock.restart().asSeconds();
         m_window.clear(sf::Color::White);
         
+        /*
         /// Updates
         m_entityManager->update();
         input->update(getWindow());
@@ -59,6 +61,10 @@ void Engine::mainLoop(){
         sMovement(m_entityManager->getEntities("dynamic"));
         sCollisionHandler(m_entityManager->getEntities(), m_entityManager->getEntities("dynamic"));
         sRender(m_entityManager->getEntities());
+         */
+        
+        m_scene->update();
+        
         
         m_currentFrame++;
         m_window.display();
