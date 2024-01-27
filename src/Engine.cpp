@@ -21,7 +21,7 @@ Engine::Engine() {
     input = std::make_shared<Input>();
     assets->addTexture("test", "resources/test.png");
     
-    m_window.create(sf::VideoMode(1280, 720), "game engine test");
+    m_window.create(sf::VideoMode(1280, 720), "GGJ 2024");
     m_window.setFramerateLimit(60);
     m_clock = sf::Clock();
     
@@ -45,7 +45,7 @@ void Engine::mainLoop(){
         deltaTime = m_clock.restart().asSeconds();
         m_window.clear(sf::Color::White);
         
-        /*
+        
         /// Updates
         m_entityManager->update();
         input->update(getWindow());
@@ -58,9 +58,9 @@ void Engine::mainLoop(){
         sMovement(m_entityManager->getEntities("dynamic"));
         sCollisionHandler(m_entityManager->getEntities(), m_entityManager->getEntities("dynamic"));
         sRender(m_entityManager->getEntities());
-         */
         
-        m_scene->update();
+        
+        //m_scene->update();
         
         
         m_currentFrame++;
