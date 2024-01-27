@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include <SFML/Graphics.hpp>
+
 #include "EntityManager.hpp"
 #include "Input.hpp"
 #include "Debug.hpp"
@@ -28,8 +29,9 @@ public:
     virtual void sRender(EntityList& entities);
 };
 
-class GameScene : public Scene {
 
+
+class GameScene : public Scene {
 public:
     GameScene(sf::RenderWindow& windowRef);
     void update() override;

@@ -33,9 +33,6 @@ Engine::Engine() {
     input->makeAxis("moveX", sf::Keyboard::Scan::Scancode::D, sf::Keyboard::Scan::Scancode::A);
     input->makeAxis("moveY", sf::Keyboard::Scan::Scancode::S, sf::Keyboard::Scan::Scancode::W);
     
-    Vector2 vec = Vector2().zero();
-    vec.clamp(1, 1);
-    
     Debug::log("init completed");
     
 }
