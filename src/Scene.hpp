@@ -51,7 +51,6 @@ private:
     void sObstacleSpawner();
     void sDeleteOffScreen(EntityList& entities);
     void sCollisionHandler(std::shared_ptr<Entity> player, EntityList& obstacles);
-    void sLag();
     
 public:
     GameScene(Engine& engine);

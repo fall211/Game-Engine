@@ -24,7 +24,7 @@ Engine::Engine() {
     assets->addTexture("obstacle", "resources/obstacle.png");
 
     
-    m_window.create(sf::VideoMode(1280, 720), "Memory Leak");
+    m_window.create(sf::VideoMode(1280, 720), "GG");
     m_window.setFramerateLimit(60);
     m_clock = sf::Clock();
     

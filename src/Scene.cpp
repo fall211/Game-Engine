@@ -6,7 +6,6 @@
 //
 
 #include "Scene.hpp"
-#include "Leak.hpp"
 
 Scene::Scene(Engine& engine) : m_engine(engine){
     m_entityManager = std::make_shared<EntityManager>();
@@ -130,14 +129,7 @@ void GameScene::sCollisionHandler(std::shared_ptr<Entity> player, EntityList& ob
             Vector2 collision = Physics2D::bBoxCollision(player, e);
             if (collision != Vector2::zero()) {
                 e->destroy();
-                MemoryLeak leak = MemoryLeak();
             }
         }
-    }
-}
-
-void GameScene::sLag(){
-    for (int i = 0; i <100000000; i++) {
-        int L = i*i;
     }
 }
