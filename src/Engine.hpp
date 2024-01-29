@@ -19,7 +19,6 @@ class GameScene;
 
 
 class Engine {
-    std::shared_ptr<EntityManager> m_entityManager;
     sf::RenderWindow m_window;
     sf::Clock m_clock;
     std::shared_ptr<GameScene> m_gameScene;
@@ -29,7 +28,6 @@ class Engine {
 
 public:
     std::shared_ptr<Assets> assets;
-    std::shared_ptr<Input> input;
     float deltaTime = 0.0f;
 
     Engine();
