@@ -25,7 +25,9 @@ void Scene::sRender(EntityList& entities){
     }
 }
 
-GameScene::GameScene(Engine& engine) : Scene(engine){}
+GameScene::GameScene(Engine& engine) : Scene(engine){
+    init();
+}
 
 void GameScene::init(){
     /// Setup input actions
@@ -37,6 +39,8 @@ void GameScene::init(){
     
     /// Initial systems to run one time
     sSpawnPlayer();
+    
+    Debug::log("init game scene");
 }
 
 void GameScene::update(){
@@ -132,4 +136,20 @@ void GameScene::sCollisionHandler(std::shared_ptr<Entity> player, EntityList& ob
             }
         }
     }
+}
+
+
+MenuScene::MenuScene(Engine& engine) : Scene(engine){
+    init();
+}
+
+void MenuScene::init(){
+    Debug::log("init menu scene");
+}
+
+void MenuScene::update(){
+    m_entityManager->update();
+    m_input->update(m_engine.getWindow());
+    
+    sRender(m_entityManager->getEntities());
 }

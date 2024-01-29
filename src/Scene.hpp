@@ -56,8 +56,15 @@ public:
     GameScene(Engine& engine);
     void init() override;
     void update() override;
-    
+};
 
+class MenuScene : public Scene {
+private:
+    void sTest();
+public:
+    MenuScene(Engine& engine);
+    void init() override;
+    void update() override;
 };
 
 #endif /* Scene_hpp */
