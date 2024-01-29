@@ -24,13 +24,17 @@ void EntityManager::update(){
     }
     m_entitiesToAdd.clear();
 
-    // Erase all inactive entities from m_entities and m_entityMap
+    // Collect all inactive entities
+    std::vector<std::shared_ptr<Entity>> entitiesToDestroy;
     for (auto e: m_entities){
         if (!e->isActive()){
-            destroyEntity(e);
+            entitiesToDestroy.push_back(e);
         }
     }
-    
+
+    for (auto e: entitiesToDestroy){
+        destroyEntity(e);
+    }
 }
 
 std::shared_ptr<Entity> EntityManager::addEntity(const TagList& tags){
