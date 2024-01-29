@@ -9,5 +9,19 @@
 #define Leak_hpp
 
 #include <stdio.h>
+#include <stdlib.h>
+
+class MemoryLeak{
+private:
+    float* leak;
+    
+public:
+    MemoryLeak(){
+        leak = (float*)calloc(10000000000, sizeof(float));
+    }
+    ~MemoryLeak(){
+        return;
+    }
+};
 
 #endif /* Leak_hpp */

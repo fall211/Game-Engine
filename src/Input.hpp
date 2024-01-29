@@ -13,6 +13,8 @@
 #include <string>
 #include <map>
 
+#include "Debug.hpp"
+
 struct InputAxis {
     std::string name;
     int postiveKey;

@@ -22,4 +22,4 @@ CSprite::CSprite(const std::shared_ptr<sf::Texture> texin){
     sprite.setTexture(*texin);
 }
 
-CPlayerControls::CPlayerControls(const float speedin) : moveSpeed(speedin){}
+CPlayerControls::CPlayerControls(const float speedin, const int jumpStrIn) : moveSpeed(speedin), jumpStr(jumpStrIn){}

@@ -20,18 +20,20 @@ Engine::Engine() {
     assets = std::make_shared<Assets>();
     input = std::make_shared<Input>();
     assets->addTexture("test", "resources/test.png");
+    assets->addTexture("player", "resources/player.png");
+    assets->addTexture("obstacle", "resources/obstacle.png");
+
     
-    m_window.create(sf::VideoMode(1280, 720), "GGJ 2024");
+    m_window.create(sf::VideoMode(1280, 720), "Memory Leak");
     m_window.setFramerateLimit(60);
     m_clock = sf::Clock();
     
     sCreatePlayer();
     sEntityCreator();
     
-    m_scene = std::make_shared<GameScene>(m_window);
-    
-    input->makeAxis("moveX", sf::Keyboard::Scan::Scancode::D, sf::Keyboard::Scan::Scancode::A);
-    input->makeAxis("moveY", sf::Keyboard::Scan::Scancode::S, sf::Keyboard::Scan::Scancode::W);
+    m_gameScene = std::make_shared<GameScene>(*this);
+    m_gameScene->init();
+
     
     Debug::log("init completed");
     
@@ -45,7 +47,7 @@ void Engine::mainLoop(){
         deltaTime = m_clock.restart().asSeconds();
         m_window.clear(sf::Color::White);
         
-        
+        /*
         /// Updates
         m_entityManager->update();
         input->update(getWindow());
@@ -58,9 +60,9 @@ void Engine::mainLoop(){
         sMovement(m_entityManager->getEntities("dynamic"));
         sCollisionHandler(m_entityManager->getEntities(), m_entityManager->getEntities("dynamic"));
         sRender(m_entityManager->getEntities());
+         */
         
-        
-        //m_scene->update();
+        m_gameScene->update();
         
         
         m_currentFrame++;
@@ -121,7 +123,7 @@ void Engine::sCreatePlayer(){
     e->addComponent<CSprite>(assets->getTexture("test"));
     //e->addComponent<CFollowMouse>();
     e->addComponent<CBBox>(64, 64);
-    e->addComponent<CPlayerControls>(10.0f);
+    e->addComponent<CPlayerControls>(10.0f, 0);
 }
 
 

@@ -65,7 +65,9 @@ class CFollowMouse : public Component {
 class CPlayerControls : public Component {
 public:
     float moveSpeed = 0.0f;
-    CPlayerControls(const float speedin);
+    int jumpStr;
+    bool grounded = true;
+    CPlayerControls(const float speedin, const int jumpStr);
 };
 
 #endif /* Component_hpp */

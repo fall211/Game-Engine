@@ -13,6 +13,8 @@
 #include "Debug.hpp"
 #include "Assets.hpp"
 #include "Input.hpp"
+
+class GameScene;
 #include "Scene.hpp"
 
 
@@ -20,7 +22,7 @@ class Engine {
     std::shared_ptr<EntityManager> m_entityManager;
     sf::RenderWindow m_window;
     sf::Clock m_clock;
-    std::shared_ptr<GameScene> m_scene;
+    std::shared_ptr<GameScene> m_gameScene;
     
 
     size_t m_currentFrame = 0;
@@ -83,3 +85,6 @@ public:
     void sCreatePlayer();
 };
 #endif /* Engine_hpp */
+
+
+

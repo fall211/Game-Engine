@@ -38,7 +38,7 @@ void Input::update(sf::RenderWindow& window){
 
                 // check if there is a key for this code in m_keyMap
                 if (m_keyMap.count(event.key.code) == 0) continue;
-                
+
                 std::shared_ptr<Key> key = m_keyMap[event.key.code];
                 
                 if (event.type == sf::Event::KeyPressed){
