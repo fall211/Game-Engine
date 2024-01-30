@@ -8,7 +8,6 @@
 #ifndef EntityManager_hpp
 #define EntityManager_hpp
 
-#include <stddef.h>
 #include <string>
 #include <map>
 
@@ -30,9 +29,9 @@ public:
     EntityList& getEntities();
     EntityList& getEntities(const std::string& tag);
     
-    void addTagToEntity(std::shared_ptr<Entity> entity, const std::string& tag);
-    void removeTagFromEntity(std::shared_ptr<Entity> entity, const std::string& tag);
-    void destroyEntity(std::shared_ptr<Entity> entity);
+    void addTagToEntity(const std::shared_ptr<Entity>& entity, const std::string& tag);
+    void removeTagFromEntity(const std::shared_ptr<Entity>& entity, const std::string& tag);
+    void destroyEntity(const std::shared_ptr<Entity>& entity);
 };
 
 #endif /* EntityManager_hpp */

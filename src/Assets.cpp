@@ -9,18 +9,17 @@
 
 #include <SFML/Graphics.hpp>
 
-#include <iostream>
 
 Assets::Assets() {
     m_textures = std::map<std::string, std::shared_ptr<sf::Texture>>();
 }
 
-void Assets::addTexture(std::string name, std::string path) {
+void Assets::addTexture(const std::string& name, const std::string& path) {
     sf::Texture tex;
-    if (!tex.loadFromFile(path)) throw 404;
+    if (!tex.loadFromFile(path)) throw std::runtime_error("Error loading texture from file: " + path);
     m_textures[name] = std::make_shared<sf::Texture>(tex);
 }
 
-std::shared_ptr<sf::Texture> Assets::getTexture(std::string name) {
+std::shared_ptr<sf::Texture> Assets::getTexture(const std::string& name) {
     return m_textures[name];
 }

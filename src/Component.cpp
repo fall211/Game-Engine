@@ -7,19 +7,20 @@
 
 #include "Component.hpp"
 
+
 CTransform::CTransform(const Vector2& positionin, const Vector2& velocityin)
     : position(positionin), velocity(velocityin) {}
 
-CShape::CShape(const sf::RectangleShape& shapein) : shape(shapein) {}
+CShape::CShape(sf::RectangleShape  shapeIn) : shape(std::move(shapeIn)) {}
 
-CLifetime::CLifetime(float lifetimein) : lifetime(lifetimein) {}
+CLifetime::CLifetime(const float lifetimein) : lifetime(lifetimein) {}
 
-CBBox::CBBox(float win, float hin) : w(win), h(hin) {}
+CBBox::CBBox(const float win, const float hin) : w(win), h(hin) {}
 
-CBCircle::CBCircle(float rin) : radius(rin) {}
+CBCircle::CBCircle(const float rin) : radius(rin) {}
 
-CSprite::CSprite(const std::shared_ptr<sf::Texture> texin){
+CSprite::CSprite(const std::shared_ptr<sf::Texture>& texin){
     sprite.setTexture(*texin);
 }
 
-CPlayerControls::CPlayerControls(const float speedin, const int jumpStrIn) : moveSpeed(speedin), jumpStr(jumpStrIn){}
+CPlayerControls::CPlayerControls(const float speedIn, const int jumpStrIn) : moveSpeed(speedIn), jumpStr(jumpStrIn){}

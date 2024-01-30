@@ -15,7 +15,7 @@ EntityManager::EntityManager() {
 
 void EntityManager::update(){
     // add new entities
-    for (auto e : m_entitiesToAdd){
+    for (const auto& e : m_entitiesToAdd){
         m_entities.push_back(e);
         auto& tags = e->getTags();
         for (auto& tag : tags){
@@ -26,13 +26,13 @@ void EntityManager::update(){
 
     // Collect all inactive entities
     std::vector<std::shared_ptr<Entity>> entitiesToDestroy;
-    for (auto e: m_entities){
+    for (const auto& e: m_entities){
         if (!e->isActive()){
             entitiesToDestroy.push_back(e);
         }
     }
 
-    for (auto e: entitiesToDestroy){
+    for (const auto& e: entitiesToDestroy){
         destroyEntity(e);
     }
 }
@@ -51,18 +51,18 @@ EntityList& EntityManager::getEntities(const std::string& tag){
     return m_entityMap[tag];
 }
 
-void EntityManager::addTagToEntity(std::shared_ptr<Entity> entity, const std::string& tag) {
+void EntityManager::addTagToEntity(const std::shared_ptr<Entity>& entity, const std::string& tag) {
     entity->addTag(tag);
     m_entityMap[tag].push_back(entity);
 }
 
-void EntityManager::removeTagFromEntity(std::shared_ptr<Entity> entity, const std::string& tag) {
+void EntityManager::removeTagFromEntity(const std::shared_ptr<Entity>& entity, const std::string& tag) {
     entity->removeTag(tag);
     auto& entityListWithTag = m_entityMap[tag];
     entityListWithTag.erase(std::remove(entityListWithTag.begin(), entityListWithTag.end(), entity), entityListWithTag.end());
 }
 
-void EntityManager::destroyEntity(std::shared_ptr<Entity> entity) {
+void EntityManager::destroyEntity(const std::shared_ptr<Entity>& entity) {
     for (const auto& tag : entity->getTags()) {
         auto& entityListWithTag = m_entityMap[tag];
         entityListWithTag.erase(std::remove(entityListWithTag.begin(), entityListWithTag.end(), entity), entityListWithTag.end());

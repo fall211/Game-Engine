@@ -12,9 +12,9 @@
 
 class Physics2D {
 public:
-    static bool isBBoxCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entity> e1);
-    static bool isBCircleCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entity> e1);
-    static Vector2 bBoxCollision(std::shared_ptr<Entity> e0, std::shared_ptr<Entity> e1);
+    static bool isBBoxCollision(const std::shared_ptr<Entity>& e0, const std::shared_ptr<Entity>& e1);
+    static bool isBCircleCollision(const std::shared_ptr<Entity>& e0, const std::shared_ptr<Entity>& e1);
+    static Vector2 bBoxCollision(const std::shared_ptr<Entity>& e0, const std::shared_ptr<Entity>& e1);
 };
 
 #endif /* Physics_hpp */

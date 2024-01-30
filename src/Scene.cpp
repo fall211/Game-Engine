@@ -62,7 +62,7 @@ void GameScene::update(){
     //sLag();
 }
 
-void GameScene::sSpawnPlayer(){
+void GameScene::sSpawnPlayer() {
     auto e = m_entityManager->addEntity({"player", "dynamic"});
     e->addComponent<CTransform>(Vector2(m_engine.getWindow().getSize().x/4 - 32, 100), Vector2::zero());
     e->addComponent<CSprite>(m_engine.assets->getTexture("player"));
@@ -70,7 +70,7 @@ void GameScene::sSpawnPlayer(){
     e->addComponent<CBBox>(64, 64);
 }
 
-void GameScene::sPlayerGravity(std::shared_ptr<Entity> player){
+void GameScene::sPlayerGravity(const std::shared_ptr<Entity>& player){
     auto& transform = player->getComponent<CTransform>();
     auto& controls = player->getComponent<CPlayerControls>();
 
@@ -83,15 +83,15 @@ void GameScene::sPlayerGravity(std::shared_ptr<Entity> player){
     transform.velocity.y += 1;
 }
 
-void GameScene::sPlayerController(std::shared_ptr<Entity> player){
-    auto& controls = player->getComponent<CPlayerControls>();
+void GameScene::sPlayerController(const std::shared_ptr<Entity>& player){
+    const auto& controls = player->getComponent<CPlayerControls>();
     auto& transform = player->getComponent<CTransform>();
     if (m_input->isAction("jump") && controls.grounded) {
-        transform.velocity.y -= controls.jumpStr;
+        transform.velocity.y -= static_cast<float>(controls.jumpStr);
     }
 }
 
-void GameScene::sMove(EntityList& entities){
+void GameScene::sMove(const EntityList& entities){
     for (auto& e : entities){
         if (e->hasComponent<CTransform>()){
             auto& transform = e->getComponent<CTransform>();
@@ -111,15 +111,15 @@ void GameScene::sObstacleSpawner(){
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<float> range(200.0f, 500.0f);
-    int randomY = range(gen);
+    const float randomY = range(gen);
     
-    auto e = m_entityManager->addEntity({"obstacle", "dynamic"});
+    const auto e = m_entityManager->addEntity({"obstacle", "dynamic"});
     e->addComponent<CTransform>(Vector2(1420, randomY), Vector2(-10, 0));
     e->addComponent<CSprite>(m_engine.assets->getTexture("obstacle"));
     e->addComponent<CBBox>(64, 64);
 }
 
-void GameScene::sDeleteOffScreen(EntityList& entities){
+void GameScene::sDeleteOffScreen(const EntityList& entities){
     for (auto& e : entities){
         if (e->getComponent<CTransform>().position.x < -100){
             e->destroy();
@@ -127,11 +127,10 @@ void GameScene::sDeleteOffScreen(EntityList& entities){
     }
 }
 
-void GameScene::sCollisionHandler(std::shared_ptr<Entity> player, EntityList& obstacles) {
+void GameScene::sCollisionHandler(const std::shared_ptr<Entity>& player, const EntityList& obstacles) {
     for (auto& e : obstacles) {
         if (e->hasComponent<CBBox>()) { // ignore entities with no bounding box
-            Vector2 collision = Physics2D::bBoxCollision(player, e);
-            if (collision != Vector2::zero()) {
+            if (const Vector2 collision = Physics2D::bBoxCollision(player, e); collision != Vector2::zero()) {
                 e->destroy();
             }
         }
@@ -145,11 +144,21 @@ MenuScene::MenuScene(Engine& engine) : Scene(engine){
 
 void MenuScene::init(){
     Debug::log("init menu scene");
+    m_input->makeAction("sceneChange", {sf::Keyboard::Scan::Scancode::R});
+
 }
 
 void MenuScene::update(){
     m_entityManager->update();
     m_input->update(m_engine.getWindow());
     
+    sTest();
+    
     sRender(m_entityManager->getEntities());
+}
+
+void MenuScene::sTest(){
+    if (m_input->isActionDown("sceneChange")){
+        m_engine.changeCurrentScene("game");
+    }
 }

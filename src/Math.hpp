@@ -8,15 +8,14 @@
 #ifndef Math_hpp
 #define Math_hpp
 
-#include <stdio.h>
-#include <math.h>
+
 
 class Vector2 {
 public:
     float x = 0.0f;
     float y = 0.0f;
 
-    Vector2(float x = 0.0f, float y = 0.0f) : x(x), y(y) {}
+    explicit Vector2(const float x = 0.0f, const float y = 0.0f) : x(x), y(y) {}
     
     /**
      * Calculates the dot product of this vector and another vector.
@@ -24,21 +23,21 @@ public:
      * @param other The other vector to calculate the dot product with.
      * @return The dot product of the two vectors.
      */
-    float dot(const Vector2& other) const;
+    [[nodiscard]] float dot(const Vector2& other) const;
     
     /**
      * Calculates the magnitude of the vector.
      *
      * @return The magnitude of the vector.
      */
-    float magnitude() const;
+    [[nodiscard]] float magnitude() const;
     
     /**
      * Calculates the direction of a vector. Does not change the vector's values.
      *
      * @return The normalized vector.
      */
-    Vector2 normalized() const;
+    [[nodiscard]] Vector2 normalized() const;
     
     /**
      * Normalizes a vector to magnitude 1.
@@ -56,7 +55,7 @@ public:
      * @param lower The lower bound for the magnitude.
      * @param upper The upper bound for the magnitude.
      */
-    void clamp(const float lower, const float upper);
+    void clamp(float lower, float upper);
     
     static Vector2 zero(){
         return Vector2(0.0f, 0.0f);
@@ -70,11 +69,11 @@ public:
         return Vector2(x - other.x, y - other.y);
     }
 
-    Vector2 operator*(float scalar) const {
+    Vector2 operator*(const float scalar) const {
         return Vector2(x * scalar, y * scalar);
     }
 
-    Vector2 operator/(float scalar) const {
+    Vector2 operator/(const float scalar) const {
         return Vector2(x / scalar, y / scalar);
     }
 
@@ -90,13 +89,13 @@ public:
         return *this;
     }
 
-    Vector2& operator*=(float scalar) {
+    Vector2& operator*=(const float scalar) {
         x *= scalar;
         y *= scalar;
         return *this;
     }
 
-    Vector2& operator/=(float scalar) {
+    Vector2& operator/=(const float scalar) {
         x /= scalar;
         y /= scalar;
         return *this;

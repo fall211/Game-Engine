@@ -8,12 +8,10 @@
 #ifndef Entity_hpp
 #define Entity_hpp
 
-#include <stddef.h>
 #include <string>
 #include <tuple>
 #include <unordered_map>
 #include <typeindex>
-#include <memory>
 
 #include "Component.hpp"
 
@@ -21,20 +19,20 @@ typedef std::vector<std::string> TagList;
 
 
 class Entity {
-    const size_t m_id = 0;
     TagList m_tags;
+    const size_t m_id = 0;
     bool m_active = true;
     std::unordered_map<std::type_index, std::shared_ptr<Component>> m_components;
 
     friend class EntityManager;
-    Entity(const TagList& tags, size_t id);
+    Entity(TagList  tags, size_t id);
     void addTag(const std::string& tag);
     void removeTag(const std::string& tag);
     
 public:
-    const size_t getId();
+    [[nodiscard]] size_t getId() const;
     const TagList& getTags();
-    const bool isActive();
+    [[nodiscard]] bool isActive() const;
     void destroy();
 
     
@@ -52,12 +50,12 @@ public:
 
     template <typename T>
     T& getComponent() const {
-        auto it = m_components.find(typeid(T));
+        const auto it = m_components.find(typeid(T));
         return *dynamic_cast<T*>(it->second.get());
     }
 
     template <typename T>
-    bool hasComponent() const {
+    [[nodiscard]] bool hasComponent() const {
         return m_components.find(typeid(T)) != m_components.end();
     }
 

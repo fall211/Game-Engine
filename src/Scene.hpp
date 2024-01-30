@@ -8,16 +8,16 @@
 #ifndef Scene_hpp
 #define Scene_hpp
 
-#include <stdio.h>
+#include <cstdio>
 #include <random>
 #include <SFML/Graphics.hpp>
 
 #include "EntityManager.hpp"
 #include "Input.hpp"
-#include "Debug.hpp"
-#include "Component.hpp"
 #include "Entity.hpp"
 #include "Physics.hpp"
+#include "Debug.hpp"
+#include "Component.hpp"
 
 class Engine;
 #include "Engine.hpp"
@@ -27,11 +27,11 @@ protected:
     std::shared_ptr<EntityManager> m_entityManager;
     std::shared_ptr<Input> m_input;
     Engine& m_engine;
-    
-    
+
+
 public:
-    Scene(Engine& engine);
-    ~Scene(){};
+    explicit Scene(Engine& engine);
+    virtual ~Scene()= default;
     virtual void init() = 0;
     virtual void update() = 0;
     virtual void sRender(EntityList& entities);
@@ -39,30 +39,29 @@ public:
 
 
 
-class GameScene : public Scene {
-private:
+class GameScene final : public Scene {
     void sSpawnPlayer();
-    void sPlayerGravity(std::shared_ptr<Entity> player);
-    void sPlayerController(std::shared_ptr<Entity> player);
-    void sMove(EntityList& entities);
+    void sPlayerGravity(const std::shared_ptr<Entity>& player);
+    void sPlayerController(const std::shared_ptr<Entity>& player);
+    void sMove(const EntityList& entities);
     
     float m_obstacleSpawnTimer = 0;
     void sSceneTime();
     void sObstacleSpawner();
-    void sDeleteOffScreen(EntityList& entities);
-    void sCollisionHandler(std::shared_ptr<Entity> player, EntityList& obstacles);
+    void sDeleteOffScreen(const EntityList& entities);
+    void sCollisionHandler(const std::shared_ptr<Entity>& player, const EntityList& obstacles);
     
 public:
-    GameScene(Engine& engine);
+    explicit GameScene(Engine& engine);
     void init() override;
     void update() override;
 };
 
-class MenuScene : public Scene {
-private:
+class MenuScene final : public Scene {
     void sTest();
+
 public:
-    MenuScene(Engine& engine);
+    explicit MenuScene(Engine& engine);
     void init() override;
     void update() override;
 };

@@ -6,9 +6,8 @@
 //
 
 #include "Input.hpp"
-#include <SFML/Window/Keyboard.hpp>
 
-InputAxis::InputAxis(const std::string& name, int pKey, int nKey) : name(name), postiveKey(pKey), negativeKey(nKey){}
+InputAxis::InputAxis(std::string  name, const int pKey, const int nKey) : name(std::move(name)), postiveKey(pKey), negativeKey(nKey){}
 
 Key::Key() {
     justPressed = false;
@@ -24,13 +23,13 @@ Input::Input(){
 
 void Input::update(sf::RenderWindow& window){
     
-    for (auto& pair : m_keyMap){
-        std::shared_ptr<Key> key = pair.second;
+    for (const auto& pair : m_keyMap){
+        const std::shared_ptr<Key> key = pair.second;
         key->justPressed = false;
         key->justReleased = false;
     }
     
-    sf::Event event;
+    sf::Event event{};
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) window.close();
             
@@ -39,7 +38,7 @@ void Input::update(sf::RenderWindow& window){
                 // check if there is a key for this code in m_keyMap
                 if (m_keyMap.count(event.key.code) == 0) continue;
 
-                std::shared_ptr<Key> key = m_keyMap[event.key.code];
+                const std::shared_ptr<Key> key = m_keyMap[event.key.code];
                 
                 if (event.type == sf::Event::KeyPressed){
                     key->justPressed = true;
@@ -50,12 +49,8 @@ void Input::update(sf::RenderWindow& window){
                 }
 
             }
-            else if (event.type == sf::Event::MouseButtonPressed) {
-
-            }
-            else if (event.type == sf::Event::MouseButtonReleased) {
-
-            }
+            //else if (event.type == sf::Event::MouseButtonPressed) continue;
+            //else if (event.type == sf::Event::MouseButtonReleased) continue;
         }
 }
 
@@ -69,7 +64,7 @@ bool Input::getKeyUp(const int key){
     return m_keyMap[key]->justReleased;
 }
 
-void Input::makeAction(const std::string& name, std::vector<int> keycodes){
+void Input::makeAction(const std::string& name, const std::vector<int>& keycodes){
     /*
      TODO: return if an action with the given name already exists
      */
@@ -77,28 +72,29 @@ void Input::makeAction(const std::string& name, std::vector<int> keycodes){
     m_actionsMap.insert({name, keycodes});
     for (auto& k : keycodes){
         if (m_keyMap.count(k) == 0){
-            std::shared_ptr key = std::make_shared<Key>();
+            auto key = std::make_shared<Key>();
             m_keyMap.insert({k, key});
         }
     }
 }
 
 bool Input::isAction(const std::string& name){
-    for (auto& key : m_actionsMap[name]){
+    for (const auto& key : m_actionsMap[name]){
         if (getKey(key)) return true;
     }
     return false;
 }
 
+
 bool Input::isActionDown(const std::string& name){
-    for (auto& key : m_actionsMap[name]){
+    for (const auto& key : m_actionsMap[name]){
         if (getKeyDown(key)) return true;
     }
     return false;
 }
 
 bool Input::isActionUp(const std::string& name){
-    for (auto& key : m_actionsMap[name]){
+    for (const auto& key : m_actionsMap[name]){
         if (getKeyUp(key)) return true;
     }
     return false;
@@ -114,19 +110,19 @@ void Input::makeAxis(const std::string& name, const int positiveKey, const int n
     
     // check if the keys are registered already, if not, add them to m_keyMap
     if (m_keyMap.count(positiveKey) == 0){
-        std::shared_ptr<Key> key = std::make_shared<Key>();
+        auto key = std::make_shared<Key>();
         m_keyMap.insert({positiveKey, key});
     }
     if (m_keyMap.count(negativeKey) == 0){
-        std::shared_ptr<Key> key = std::make_shared<Key>();
+        auto key = std::make_shared<Key>();
         m_keyMap.insert({negativeKey, key});
     }
 
 }
 
 int Input::getAxis(const std::string& name){
-    std::shared_ptr<InputAxis> axis = m_axisMap[name];
-    int pos = getKey(axis->postiveKey) ? 1 : 0;
-    int neg = getKey(axis->negativeKey) ? 1 : 0;
+    const std::shared_ptr<InputAxis> axis = m_axisMap[name];
+    const int pos = getKey(axis->postiveKey) ? 1 : 0;
+    const int neg = getKey(axis->negativeKey) ? 1 : 0;
     return pos - neg;
 }

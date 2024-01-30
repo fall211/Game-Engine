@@ -9,7 +9,7 @@
 
 int main() {
 
-    std::shared_ptr<Engine> engine = std::make_shared<Engine>();
+    const auto engine = std::make_shared<Engine>();
     engine->mainLoop();
 
     return 0;

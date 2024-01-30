@@ -8,7 +8,6 @@
 #ifndef Assets_hpp
 #define Assets_hpp
 
-#include <stdio.h>
 #include <string>
 #include <map>
 
@@ -23,13 +22,13 @@ class Assets {
 public:
     Assets();
 
-    void addTexture(std::string name, std::string path);
+    void addTexture(const std::string& name, const std::string& path);
     //void addAnimation(std::string name, std::string path);
     //void addSound(std::string name, std::string path);
     //void addFont(std::string name, std::string path);
 
     //sf::Texture& getTexture(std::string name);
-    std::shared_ptr<sf::Texture> getTexture(std::string name);
+    std::shared_ptr<sf::Texture> getTexture(const std::string& name);
     //sf::Animation& getAnimation(std::string name);
     //sf::Sound& getSound(std::string name);
     //sf::Font& getFont(std::string name);

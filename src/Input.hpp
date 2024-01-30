@@ -8,19 +8,17 @@
 #ifndef Input_hpp
 #define Input_hpp
 
-#include <stdio.h>
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <map>
 
-#include "Debug.hpp"
 
 struct InputAxis {
     std::string name;
     int postiveKey;
     int negativeKey;
     
-    InputAxis(const std::string& name, int pKey, int nKey);
+    InputAxis(std::string  name, int pKey, int nKey);
 };
 
 struct Key {
@@ -45,18 +43,18 @@ class Input {
     AxisMap m_axisMap;
     KeyMap m_keyMap;
     
-    bool getKey(const int key);
-    bool getKeyDown(const int key);
-    bool getKeyUp(const int key);
+    bool getKey(int key);
+    bool getKeyDown(int key);
+    bool getKeyUp(int key);
     
 public:
     void update(sf::RenderWindow& window);
-    void makeAction(const std::string& name, const std::vector<int> keycodes);
+    void makeAction(const std::string& name, const std::vector<int>& keycodes);
     bool isAction(const std::string& name);
     bool isActionDown(const std::string& name);
     bool isActionUp(const std::string& name);
 
-    void makeAxis(const std::string& name, const int positiveKey, const int negativeKey);
+    void makeAxis(const std::string& name, int positiveKey, int negativeKey);
     int getAxis(const std::string& name);
     
     Input();

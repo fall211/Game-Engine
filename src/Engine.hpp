@@ -12,7 +12,6 @@
 #include "EntityManager.hpp"
 #include "Debug.hpp"
 #include "Assets.hpp"
-#include "Input.hpp"
 
 class Scene;
 #include "Scene.hpp"
@@ -25,10 +24,10 @@ class Engine {
     sf::Clock m_clock;
     
     sceneMap m_scenes;
-    std::shared_ptr<Scene> m_currentScene = NULL;
+    std::shared_ptr<Scene> m_currentScene = nullptr;
     
 
-    size_t m_currentFrame = 0;
+    size_t m_currentFrame;
 
 public:
     std::shared_ptr<Assets> assets;
@@ -46,7 +45,7 @@ public:
      *
      * @return The current frame.
      */
-    const size_t getCurrentFrame() { return m_currentFrame; }
+    size_t getCurrentFrame() const { return m_currentFrame; }
     
     /**
      * Gets the active SFML window..
@@ -62,7 +61,7 @@ public:
      * @param name  The name of the new scene
      * @param ptr  Pointer to the scene
      */
-    void addScene(const std::string& name, const std::shared_ptr<Scene> ptr);
+    void addScene(const std::string& name, const std::shared_ptr<Scene>& ptr);
     void changeCurrentScene(const std::string& name);
     std::shared_ptr<Scene> getScene(const std::string& name);
     std::shared_ptr<Scene>& getCurrentScene();

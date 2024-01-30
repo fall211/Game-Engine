@@ -16,11 +16,11 @@
 class Component{
 public:
     bool has = false;
-    Component(){};
-    virtual ~Component(){};
+    Component()= default;
+    virtual ~Component()= default;
 };
 
-class CTransform : public Component{
+class CTransform final : public Component{
     public:
         Vector2 position = Vector2(0,0);
         Vector2 velocity = Vector2(0,0);
@@ -28,46 +28,46 @@ class CTransform : public Component{
         CTransform(const Vector2& positionin, const Vector2& velocityin);
 };
 
-class CShape : public Component{
+class CShape final : public Component{
     public:
         sf::RectangleShape shape;
-        CShape(const sf::RectangleShape& shapein);
+        explicit CShape(sf::RectangleShape shapeIn);
 };
 
-class CLifetime : public Component {
+class CLifetime final : public Component {
 public:
     float lifetime = 1.0f;
-    CLifetime(float lifetimein);
+    explicit CLifetime(float lifetimein);
 };
 
-class CBBox : public Component {
+class CBBox final : public Component {
 public:
     float w = 1.0f;
     float h = 1.0f;
     CBBox(float win, float hin);
 };
 
-class CBCircle : public Component {
+class CBCircle final : public Component {
 public:
     float radius = 1;
-    CBCircle(float rin);
+    explicit CBCircle(float rin);
 };
 
-class CSprite : public Component {
+class CSprite final : public Component {
 public:
     sf::Sprite sprite;
-    CSprite(const std::shared_ptr<sf::Texture> texin);
+    explicit CSprite(const std::shared_ptr<sf::Texture>& texin);
 };
 
-class CFollowMouse : public Component {
+class CFollowMouse final : public Component {
 };
 
-class CPlayerControls : public Component {
+class CPlayerControls final : public Component {
 public:
     float moveSpeed = 0.0f;
     int jumpStr;
     bool grounded = true;
-    CPlayerControls(const float speedin, const int jumpStr);
+    CPlayerControls(float speedIn, int jumpStrIn);
 };
 
 #endif /* Component_hpp */

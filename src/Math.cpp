@@ -6,9 +6,9 @@
 //
 
 #include "Math.hpp"
+#include <cmath>
 
-
-float Math::dist2(Vector2 vec0, Vector2 vec1){
+float Math::dist2(const Vector2 vec0, const Vector2 vec1){
     return (vec0.x - vec1.x) * (vec0.x - vec1.x) + (vec0.y - vec1.x) * (vec0.y - vec1.y);
 }
 
@@ -21,12 +21,12 @@ float Vector2::magnitude() const {
 }
 
 Vector2 Vector2::normalized() const {
-    float len = magnitude();
+    const float len = magnitude();
     return Vector2(x / len, y / len);
 }
 
 void Vector2::normalize(){
-    float len = magnitude();
+    const float len = magnitude();
     x /= len;
     y /= len;
 }
@@ -37,7 +37,7 @@ void Vector2::clamp01(){
 }
 
 void Vector2::clamp(const float lower, const float upper){
-    float len = magnitude();
+    const float len = magnitude();
     if (len > lower && len < upper) return;
     this->normalize();
     if (len > upper) (*this) *= upper;
