@@ -23,21 +23,21 @@ public:
      * @param other The other vector to calculate the dot product with.
      * @return The dot product of the two vectors.
      */
-    [[nodiscard]] float dot(const Vector2& other) const;
+    [[nodiscard]] auto dot(const Vector2& other) const -> float;
     
     /**
      * Calculates the magnitude of the vector.
      *
      * @return The magnitude of the vector.
      */
-    [[nodiscard]] float magnitude() const;
+    [[nodiscard]] auto magnitude() const -> float;
     
     /**
      * Calculates the direction of a vector. Does not change the vector's values.
      *
      * @return The normalized vector.
      */
-    [[nodiscard]] Vector2 normalized() const;
+    [[nodiscard]] auto normalized() const -> Vector2;
     
     /**
      * Normalizes a vector to magnitude 1.
@@ -57,55 +57,55 @@ public:
      */
     void clamp(float lower, float upper);
     
-    static Vector2 zero(){
+    static auto zero() -> Vector2{
         return Vector2(0.0f, 0.0f);
     }
     
-    Vector2 operator+(const Vector2& other) const {
+    auto operator+(const Vector2& other) const -> Vector2 {
         return Vector2(x + other.x, y + other.y);
     }
 
-    Vector2 operator-(const Vector2& other) const {
+    auto operator-(const Vector2& other) const -> Vector2 {
         return Vector2(x - other.x, y - other.y);
     }
 
-    Vector2 operator*(const float scalar) const {
+    auto operator*(const float scalar) const -> Vector2 {
         return Vector2(x * scalar, y * scalar);
     }
 
-    Vector2 operator/(const float scalar) const {
+    auto operator/(const float scalar) const -> Vector2 {
         return Vector2(x / scalar, y / scalar);
     }
 
-    Vector2& operator+=(const Vector2& other) {
+    auto operator+=(const Vector2& other) -> Vector2& {
         x += other.x;
         y += other.y;
         return *this;
     }
 
-    Vector2& operator-=(const Vector2& other) {
+    auto operator-=(const Vector2& other) -> Vector2& {
         x -= other.x;
         y -= other.y;
         return *this;
     }
 
-    Vector2& operator*=(const float scalar) {
+    auto operator*=(const float scalar) -> Vector2& {
         x *= scalar;
         y *= scalar;
         return *this;
     }
 
-    Vector2& operator/=(const float scalar) {
+    auto operator/=(const float scalar) -> Vector2& {
         x /= scalar;
         y /= scalar;
         return *this;
     }
 
-    bool operator==(const Vector2& other) const {
+    auto operator==(const Vector2& other) const -> bool {
         return x == other.x && y == other.y;
     }
 
-    bool operator!=(const Vector2& other) const {
+    auto operator!=(const Vector2& other) const -> bool {
         return !(*this == other);
     }
 };
@@ -120,7 +120,7 @@ class Math {
      * @param vec1 The second vector.
      * @return The squared distance between the two vectors.
      */
-    static float dist2(Vector2 vec0, Vector2 vec1);
+    static auto dist2(Vector2 vec0, Vector2 vec1) -> float;
     
 };
 #endif /* Math_hpp */

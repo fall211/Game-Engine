@@ -41,15 +41,15 @@ public:
 
 class GameScene final : public Scene {
     void sSpawnPlayer() const;
-    void sPlayerGravity(const std::shared_ptr<Entity>& player) const;
+    static void sPlayerGravity(const std::shared_ptr<Entity>& player) ;
     void sPlayerController(const std::shared_ptr<Entity>& player) const;
-    void sMove(const EntityList& entities) const;
+    static void sMove(const EntityList& entities) ;
     
     float m_obstacleSpawnTimer = 0;
     void sSceneTime();
     void sObstacleSpawner();
     static void sDeleteOffScreen(const EntityList& entities);
-    void sCollisionHandler(const std::shared_ptr<Entity>& player, const EntityList& obstacles) const;
+    static void sCollisionHandler(const std::shared_ptr<Entity>& player, const EntityList& obstacles) ;
     
 public:
     explicit GameScene(Engine& engine);

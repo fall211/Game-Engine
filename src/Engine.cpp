@@ -57,10 +57,10 @@ void Engine::changeCurrentScene(const std::string& name){
     m_currentScene = getScene(name);
 }
 
-std::shared_ptr<Scene> Engine::getScene(const std::string& name){
+auto Engine::getScene(const std::string& name) -> std::shared_ptr<Scene>{
     return m_scenes[name];
 }
 
-std::shared_ptr<Scene>& Engine::getCurrentScene(){
+auto Engine::getCurrentScene() -> std::shared_ptr<Scene>&{
     return m_currentScene;
 }

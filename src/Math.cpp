@@ -8,19 +8,19 @@
 #include "Math.hpp"
 #include <cmath>
 
-float Math::dist2(const Vector2 vec0, const Vector2 vec1){
+auto Math::dist2(const Vector2 vec0, const Vector2 vec1) -> float{
     return (vec0.x - vec1.x) * (vec0.x - vec1.x) + (vec0.y - vec1.x) * (vec0.y - vec1.y);
 }
 
-float Vector2::dot(const Vector2& other) const {
+auto Vector2::dot(const Vector2& other) const -> float {
     return x * other.x + y * other.y;
 }
 
-float Vector2::magnitude() const {
+auto Vector2::magnitude() const -> float {
     return sqrtf(x * x + y * y);
 }
 
-Vector2 Vector2::normalized() const {
+auto Vector2::normalized() const -> Vector2 {
     const float len = magnitude();
     return Vector2(x / len, y / len);
 }

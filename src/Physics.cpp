@@ -8,7 +8,7 @@
 #include "Physics.hpp"
 #include "Math.hpp"
 
-bool Physics2D::isBBoxCollision(const std::shared_ptr<Entity>& e0, const std::shared_ptr<Entity>& e1) {
+auto Physics2D::isBBoxCollision(const std::shared_ptr<Entity>& e0, const std::shared_ptr<Entity>& e1) -> bool {
     /**
     Detects whether the bounding boxes of e0 and e1 overlap.
     **/
@@ -18,7 +18,7 @@ bool Physics2D::isBBoxCollision(const std::shared_ptr<Entity>& e0, const std::sh
     return std::abs(dr.y) < e0->getComponent<CBBox>().h && std::abs(dr.x) < e0->getComponent<CBBox>().w;
 }
 
-bool Physics2D::isBCircleCollision(const std::shared_ptr<Entity>& e0, const std::shared_ptr<Entity>& e1) {
+auto Physics2D::isBCircleCollision(const std::shared_ptr<Entity>& e0, const std::shared_ptr<Entity>& e1) -> bool {
     /**
     Detects whether the bounding circles of the two entities e0 and e1 overlap;
     **/
@@ -31,7 +31,7 @@ bool Physics2D::isBCircleCollision(const std::shared_ptr<Entity>& e0, const std:
     return Math::dist2(c0, c1) <= rsum*rsum;
 }
 
-Vector2 Physics2D::bBoxCollision(const std::shared_ptr<Entity>& e0, const std::shared_ptr<Entity>& e1){
+auto Physics2D::bBoxCollision(const std::shared_ptr<Entity>& e0, const std::shared_ptr<Entity>& e1) -> Vector2{
     if (e0->getId() == e1->getId()) return Vector2::zero();
 
     const Vector2 dr = e0->getComponent<CTransform>().position - e1->getComponent<CTransform>().position;
@@ -45,7 +45,7 @@ Vector2 Physics2D::bBoxCollision(const std::shared_ptr<Entity>& e0, const std::s
 
     if (xOverlap > 0 && yOverlap > 0) {
         return Vector2(xOverlap, yOverlap);
-    } else {
-        return Vector2::zero();
     }
+    return Vector2::zero();
+
 }

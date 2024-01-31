@@ -25,9 +25,9 @@ class EntityManager {
 public:
     EntityManager();
     void update();
-    std::shared_ptr<Entity> addEntity(const TagList& tags);
-    EntityList& getEntities();
-    EntityList& getEntities(const std::string& tag);
+    auto addEntity(const TagList& tags) -> std::shared_ptr<Entity>;
+    auto getEntities() -> EntityList&;
+    auto getEntities(const std::string& tag) -> EntityList&;
     
     void addTagToEntity(const std::shared_ptr<Entity>& entity, const std::string& tag);
     void removeTagFromEntity(const std::shared_ptr<Entity>& entity, const std::string& tag);

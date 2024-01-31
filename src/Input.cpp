@@ -54,13 +54,13 @@ void Input::update(sf::RenderWindow& window){
         }
 }
 
-bool Input::getKey(const int key){
+auto Input::getKey(const int key) -> bool{
     return m_keyMap[key]->pressed;
 }
-bool Input::getKeyDown(const int key){
+auto Input::getKeyDown(const int key) -> bool{
     return m_keyMap[key]->justPressed;
 }
-bool Input::getKeyUp(const int key){
+auto Input::getKeyUp(const int key) -> bool{
     return m_keyMap[key]->justReleased;
 }
 
@@ -78,7 +78,7 @@ void Input::makeAction(const std::string& name, const std::vector<int>& keycodes
     }
 }
 
-bool Input::isAction(const std::string& name){
+auto Input::isAction(const std::string& name) -> bool{
     for (const auto& key : m_actionsMap[name]){
         if (getKey(key)) return true;
     }
@@ -86,14 +86,14 @@ bool Input::isAction(const std::string& name){
 }
 
 
-bool Input::isActionDown(const std::string& name){
+auto Input::isActionDown(const std::string& name) -> bool{
     for (const auto& key : m_actionsMap[name]){
         if (getKeyDown(key)) return true;
     }
     return false;
 }
 
-bool Input::isActionUp(const std::string& name){
+auto Input::isActionUp(const std::string& name) -> bool{
     for (const auto& key : m_actionsMap[name]){
         if (getKeyUp(key)) return true;
     }
@@ -120,7 +120,7 @@ void Input::makeAxis(const std::string& name, const int positiveKey, const int n
 
 }
 
-int Input::getAxis(const std::string& name){
+auto Input::getAxis(const std::string& name) -> int{
     const std::shared_ptr<InputAxis> axis = m_axisMap[name];
     const int pos = getKey(axis->postiveKey) ? 1 : 0;
     const int neg = getKey(axis->negativeKey) ? 1 : 0;

@@ -43,19 +43,19 @@ class Input {
     AxisMap m_axisMap;
     KeyMap m_keyMap;
     
-    bool getKey(int key);
-    bool getKeyDown(int key);
-    bool getKeyUp(int key);
+    auto getKey(int key) -> bool;
+    auto getKeyDown(int key) -> bool;
+    auto getKeyUp(int key) -> bool;
     
 public:
     void update(sf::RenderWindow& window);
     void makeAction(const std::string& name, const std::vector<int>& keycodes);
-    bool isAction(const std::string& name);
-    bool isActionDown(const std::string& name);
-    bool isActionUp(const std::string& name);
+    auto isAction(const std::string& name) -> bool;
+    auto isActionDown(const std::string& name) -> bool;
+    auto isActionUp(const std::string& name) -> bool;
 
     void makeAxis(const std::string& name, int positiveKey, int negativeKey);
-    int getAxis(const std::string& name);
+    auto getAxis(const std::string& name) -> int;
     
     Input();
 };

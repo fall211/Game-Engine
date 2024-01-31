@@ -30,14 +30,14 @@ class Entity {
     void removeTag(const std::string& tag);
     
 public:
-    [[nodiscard]] size_t getId() const;
-    const TagList& getTags();
-    [[nodiscard]] bool isActive() const;
+    [[nodiscard]] auto getId() const -> size_t;
+    auto getTags() -> const TagList&;
+    [[nodiscard]] auto isActive() const -> bool;
     void destroy();
 
     
     template <typename T, typename... Args>
-    T& addComponent(Args&&... args) {
+    auto addComponent(Args&&... args) -> T& {
         std::shared_ptr<T> component = std::make_shared<T>(std::forward<Args>(args)...);
         m_components[typeid(T)] = std::move(component);
         return *static_cast<T*>(m_components[typeid(T)].get());
@@ -49,13 +49,13 @@ public:
     }
 
     template <typename T>
-    T& getComponent() const {
+    auto getComponent() const -> T& {
         const auto it = m_components.find(typeid(T));
         return *dynamic_cast<T*>(it->second.get());
     }
 
     template <typename T>
-    [[nodiscard]] bool hasComponent() const {
+    [[nodiscard]] auto hasComponent() const -> bool {
         return m_components.find(typeid(T)) != m_components.end();
     }
 

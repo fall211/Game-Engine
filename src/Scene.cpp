@@ -77,7 +77,7 @@ void GameScene::sSpawnPlayer() const {
     e->addComponent<CBBox>(64, 64);
 }
 
-void GameScene::sPlayerGravity(const std::shared_ptr<Entity>& player) const {
+void GameScene::sPlayerGravity(const std::shared_ptr<Entity>& player) {
     auto& transform = player->getComponent<CTransform>();
     auto& controls = player->getComponent<CPlayerControls>();
 
@@ -98,7 +98,7 @@ void GameScene::sPlayerController(const std::shared_ptr<Entity>& player) const {
     }
 }
 
-void GameScene::sMove(const EntityList& entities) const {
+void GameScene::sMove(const EntityList& entities) {
     for (auto& e : entities){
         if (e->hasComponent<CTransform>()){
             auto& transform = e->getComponent<CTransform>();
@@ -127,15 +127,15 @@ void GameScene::sObstacleSpawner(){
 }
 
 void GameScene::sDeleteOffScreen(const EntityList& entities){
-    for (auto& e : entities){
+    for (const auto& e : entities){
         if (e->getComponent<CTransform>().position.x < -100){
             e->destroy();
         }
     }
 }
 
-void GameScene::sCollisionHandler(const std::shared_ptr<Entity>& player, const EntityList& obstacles) const {
-    for (auto& e : obstacles) {
+void GameScene::sCollisionHandler(const std::shared_ptr<Entity>& player, const EntityList& obstacles) {
+    for (const auto& e : obstacles) {
         if (e->hasComponent<CBBox>()) { // ignore entities with no bounding box
             if (const Vector2 collision = Physics2D::bBoxCollision(player, e); collision != Vector2::zero()) {
                 e->destroy();

@@ -45,14 +45,14 @@ public:
      *
      * @return The current frame.
      */
-    size_t getCurrentFrame() const { return m_currentFrame; }
+    auto getCurrentFrame() const -> size_t { return m_currentFrame; }
     
     /**
      * Gets the active SFML window..
      *
      * @return The SFML window.
      */
-    sf::RenderWindow& getWindow() { return m_window; }
+    auto getWindow() -> sf::RenderWindow& { return m_window; }
 
 
     /**
@@ -63,8 +63,8 @@ public:
      */
     void addScene(const std::string& name, const std::shared_ptr<Scene>& ptr);
     void changeCurrentScene(const std::string& name);
-    std::shared_ptr<Scene> getScene(const std::string& name);
-    std::shared_ptr<Scene>& getCurrentScene();
+    auto getScene(const std::string& name) -> std::shared_ptr<Scene>;
+    auto getCurrentScene() -> std::shared_ptr<Scene>&;
 
     
 };

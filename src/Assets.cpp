@@ -20,6 +20,6 @@ void Assets::addTexture(const std::string& name, const std::string& path) {
     m_textures[name] = std::make_shared<sf::Texture>(tex);
 }
 
-std::shared_ptr<sf::Texture> Assets::getTexture(const std::string& name) {
+auto Assets::getTexture(const std::string& name) -> std::shared_ptr<sf::Texture> {
     return m_textures[name];
 }

@@ -12,9 +12,9 @@
 
 Entity::Entity(TagList  tags, const size_t id) : m_tags(std::move(tags)), m_id(id) {}
 
-size_t Entity::getId() const { return m_id; }
-const TagList& Entity::getTags() { return m_tags; }
-bool Entity::isActive() const { return m_active; }
+auto Entity::getId() const -> size_t { return m_id; }
+auto Entity::getTags() -> const TagList& { return m_tags; }
+auto Entity::isActive() const -> bool { return m_active; }
 void Entity::destroy() { m_active = false; }
 void Entity::addTag(const std::string& tag) {
     // Check if the tag is not already present
