@@ -17,6 +17,7 @@ Engine::Engine() {
     assets = std::make_shared<Assets>();
     assets->addTexture("test", "resources/test.png");
     assets->addTexture("player", "resources/player.png");
+    assets->addTexture("playerSheet", "resources/playerSheet.png");
     assets->addTexture("obstacle", "resources/obstacle.png");
 
     
@@ -51,12 +52,15 @@ void Engine::mainLoop(){
 void Engine::addScene(const std::string& name, const std::shared_ptr<Scene>& ptr){
     m_scenes[name] = ptr;
 }
+
 void Engine::changeCurrentScene(const std::string& name){
     m_currentScene = getScene(name);
 }
+
 std::shared_ptr<Scene> Engine::getScene(const std::string& name){
     return m_scenes[name];
 }
+
 std::shared_ptr<Scene>& Engine::getCurrentScene(){
     return m_currentScene;
 }

@@ -59,6 +59,17 @@ public:
     explicit CSprite(const std::shared_ptr<sf::Texture>& texin);
 };
 
+class CAnimatedSprite final : public Component {
+public:
+    sf::Sprite sprite;
+    size_t numFrames;
+    size_t frameSize;
+    int animationSpeed;
+
+    explicit CAnimatedSprite(const std::shared_ptr<sf::Texture>& texture, int animSpeed = 10);
+    void setAnimationFrame(size_t frame);
+};
+
 class CFollowMouse final : public Component {
 };
 

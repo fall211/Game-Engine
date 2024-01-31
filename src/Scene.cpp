@@ -13,10 +13,16 @@ Scene::Scene(Engine& engine) : m_engine(engine){
 }
 
 void Scene::sRender(EntityList& entities){
-    for (auto& e : entities){
+    for (const auto& e : entities){
         if (e->hasComponent<CSprite>()){
             e->getComponent<CSprite>().sprite.setPosition(e->getComponent<CTransform>().position.x, e->getComponent<CTransform>().position.y);
             m_engine.getWindow().draw(e->getComponent<CSprite>().sprite);
+        }
+        else if (e->hasComponent<CAnimatedSprite>()) {
+            auto& animatedSprite = e->getComponent<CAnimatedSprite>();
+            animatedSprite.sprite.setPosition(e->getComponent<CTransform>().position.x, e->getComponent<CTransform>().position.y);
+            animatedSprite.setAnimationFrame(m_engine.getCurrentFrame());
+            m_engine.getWindow().draw(animatedSprite.sprite);
         }
         else if (e->hasComponent<CShape>()){
             e->getComponent<CShape>().shape.setPosition(e->getComponent<CTransform>().position.x, e->getComponent<CTransform>().position.y);
@@ -62,15 +68,16 @@ void GameScene::update(){
     //sLag();
 }
 
-void GameScene::sSpawnPlayer() {
-    auto e = m_entityManager->addEntity({"player", "dynamic"});
+void GameScene::sSpawnPlayer() const {
+    const auto e = m_entityManager->addEntity({"player", "dynamic"});
     e->addComponent<CTransform>(Vector2(m_engine.getWindow().getSize().x/4 - 32, 100), Vector2::zero());
-    e->addComponent<CSprite>(m_engine.assets->getTexture("player"));
+    // e->addComponent<CSprite>(m_engine.assets->getTexture("player"));
+    e->addComponent<CAnimatedSprite>(m_engine.assets->getTexture("playerSheet"));
     e->addComponent<CPlayerControls>(0.0f, 25);
     e->addComponent<CBBox>(64, 64);
 }
 
-void GameScene::sPlayerGravity(const std::shared_ptr<Entity>& player){
+void GameScene::sPlayerGravity(const std::shared_ptr<Entity>& player) const {
     auto& transform = player->getComponent<CTransform>();
     auto& controls = player->getComponent<CPlayerControls>();
 
@@ -83,7 +90,7 @@ void GameScene::sPlayerGravity(const std::shared_ptr<Entity>& player){
     transform.velocity.y += 1;
 }
 
-void GameScene::sPlayerController(const std::shared_ptr<Entity>& player){
+void GameScene::sPlayerController(const std::shared_ptr<Entity>& player) const {
     const auto& controls = player->getComponent<CPlayerControls>();
     auto& transform = player->getComponent<CTransform>();
     if (m_input->isAction("jump") && controls.grounded) {
@@ -91,7 +98,7 @@ void GameScene::sPlayerController(const std::shared_ptr<Entity>& player){
     }
 }
 
-void GameScene::sMove(const EntityList& entities){
+void GameScene::sMove(const EntityList& entities) const {
     for (auto& e : entities){
         if (e->hasComponent<CTransform>()){
             auto& transform = e->getComponent<CTransform>();
@@ -127,7 +134,7 @@ void GameScene::sDeleteOffScreen(const EntityList& entities){
     }
 }
 
-void GameScene::sCollisionHandler(const std::shared_ptr<Entity>& player, const EntityList& obstacles) {
+void GameScene::sCollisionHandler(const std::shared_ptr<Entity>& player, const EntityList& obstacles) const {
     for (auto& e : obstacles) {
         if (e->hasComponent<CBBox>()) { // ignore entities with no bounding box
             if (const Vector2 collision = Physics2D::bBoxCollision(player, e); collision != Vector2::zero()) {
@@ -157,7 +164,7 @@ void MenuScene::update(){
     sRender(m_entityManager->getEntities());
 }
 
-void MenuScene::sTest(){
+void MenuScene::sTest() const {
     if (m_input->isActionDown("sceneChange")){
         m_engine.changeCurrentScene("game");
     }

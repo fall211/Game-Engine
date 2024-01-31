@@ -23,4 +23,16 @@ CSprite::CSprite(const std::shared_ptr<sf::Texture>& texin){
     sprite.setTexture(*texin);
 }
 
+CAnimatedSprite::CAnimatedSprite(const std::shared_ptr<sf::Texture>& texture, const int animSpeed) : animationSpeed(animSpeed){
+    sprite.setTexture(*texture);
+    frameSize = texture->getSize().y;
+    numFrames = texture->getSize().x / frameSize;
+}
+
+void CAnimatedSprite::setAnimationFrame(const size_t frame) {
+    const int index = static_cast<int>(frame / animationSpeed) % static_cast<int>(numFrames);
+    const int size = static_cast<int>(frameSize);
+    sprite.setTextureRect(sf::IntRect(size*index, 0, size, size));
+}
+
 CPlayerControls::CPlayerControls(const float speedIn, const int jumpStrIn) : moveSpeed(speedIn), jumpStr(jumpStrIn){}
