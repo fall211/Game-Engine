@@ -16,22 +16,24 @@
 class Scene;
 #include "Scene.hpp"
 
+using namespace std::chrono;
 
 typedef std::map<std::string, std::shared_ptr<Scene>> sceneMap;
 
 class Engine {
     sf::RenderWindow m_window;
-    sf::Clock m_clock;
-    
+    float m_deltaTime = 0.0f;
+    float m_simTime = 0.0f;
+
     sceneMap m_scenes;
     std::shared_ptr<Scene> m_currentScene = nullptr;
     
 
     size_t m_currentFrame;
+    void calculateDeltaTime(const time_point<system_clock>& start, time_point<system_clock>& previous);
 
 public:
     std::shared_ptr<Assets> assets;
-    float deltaTime = 0.0f;
 
     Engine();
     
@@ -46,7 +48,19 @@ public:
      * @return The current frame.
      */
     auto getCurrentFrame() const -> size_t { return m_currentFrame; }
-    
+
+    /**
+     * Gets the delta time of the simaltion.
+     * @return delta time
+     */
+    auto deltaTime() const -> float { return m_deltaTime; }
+
+    /**
+     * \brief Total time the simulation has been running.
+     * \return total time of the simlation
+     */
+    auto simTime() const -> float { return m_simTime; }
+
     /**
      * Gets the active SFML window..
      *

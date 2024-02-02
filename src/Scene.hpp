@@ -41,9 +41,9 @@ public:
 
 class GameScene final : public Scene {
     void sSpawnPlayer() const;
-    static void sPlayerGravity(const std::shared_ptr<Entity>& player) ;
+    void sPlayerGravity(const std::shared_ptr<Entity>& player) ;
     void sPlayerController(const std::shared_ptr<Entity>& player) const;
-    static void sMove(const EntityList& entities) ;
+    void sMove(const EntityList& entities) ;
     
     float m_obstacleSpawnTimer = 0;
     void sSceneTime();

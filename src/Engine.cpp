@@ -22,8 +22,7 @@ Engine::Engine() {
 
     
     m_window.create(sf::VideoMode(1280, 720), "engine window");
-    m_window.setFramerateLimit(60);
-    m_clock = sf::Clock();
+    m_window.setFramerateLimit(0);
     m_currentFrame = 0;
 
     addScene("game", std::make_shared<GameScene>(*this));
@@ -32,14 +31,15 @@ Engine::Engine() {
     changeCurrentScene("menu");
 
     Debug::log("init completed");
-    Debug::log("test");
-
 }
 
 void Engine::mainLoop(){
-    
+    const auto start = system_clock::now();
+    auto previous = system_clock::now();
+
     while (m_window.isOpen()){
-        deltaTime = m_clock.restart().asSeconds();
+        calculateDeltaTime(start, previous);
+
         m_window.clear(sf::Color::White);
         
         m_currentScene->update();
@@ -48,6 +48,17 @@ void Engine::mainLoop(){
         m_window.display();
     }
 }
+
+void Engine::calculateDeltaTime(const time_point<system_clock>& start, time_point<system_clock>& previous) {
+    const auto now = system_clock::now();
+    const duration<float> elapsedTime = now - start;
+    const duration<float> delta = now - previous;
+    previous = now;
+
+    m_deltaTime = delta.count();
+    m_simTime = elapsedTime.count();
+}
+
 
 void Engine::addScene(const std::string& name, const std::shared_ptr<Scene>& ptr){
     m_scenes[name] = ptr;

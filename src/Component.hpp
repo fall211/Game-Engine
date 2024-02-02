@@ -64,10 +64,10 @@ public:
     sf::Sprite sprite;
     size_t numFrames;
     size_t frameSize;
-    int animationSpeed;
+    float animationSpeed;
 
-    explicit CAnimatedSprite(const std::shared_ptr<sf::Texture>& texture, int animSpeed = 10);
-    void setAnimationFrame(size_t frame);
+    explicit CAnimatedSprite(const std::shared_ptr<sf::Texture>& texture, float animSpeed = 0.5f);
+    void setAnimationFrame(float simTime, float deltaTime);
 };
 
 class CFollowMouse final : public Component {

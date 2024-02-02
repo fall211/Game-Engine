@@ -21,7 +21,7 @@ void Scene::sRender(EntityList& entities){
         else if (e->hasComponent<CAnimatedSprite>()) {
             auto& animatedSprite = e->getComponent<CAnimatedSprite>();
             animatedSprite.sprite.setPosition(e->getComponent<CTransform>().position.x, e->getComponent<CTransform>().position.y);
-            animatedSprite.setAnimationFrame(m_engine.getCurrentFrame());
+            animatedSprite.setAnimationFrame(m_engine.simTime(), m_engine.deltaTime());
             m_engine.getWindow().draw(animatedSprite.sprite);
         }
         else if (e->hasComponent<CShape>()){
@@ -73,21 +73,21 @@ void GameScene::sSpawnPlayer() const {
     e->addComponent<CTransform>(Vector2(m_engine.getWindow().getSize().x/4 - 32, 100), Vector2::zero());
     // e->addComponent<CSprite>(m_engine.assets->getTexture("player"));
     e->addComponent<CAnimatedSprite>(m_engine.assets->getTexture("playerSheet"));
-    e->addComponent<CPlayerControls>(0.0f, 25);
+    e->addComponent<CPlayerControls>(0.0f, 400.0f);
     e->addComponent<CBBox>(64, 64);
 }
 
 void GameScene::sPlayerGravity(const std::shared_ptr<Entity>& player) {
+    const float GRAVITY = 900.0f;
     auto& transform = player->getComponent<CTransform>();
     auto& controls = player->getComponent<CPlayerControls>();
-
     if (transform.position.y >= 500){
         transform.velocity.y = 0;
         controls.grounded = true;
         return;
     }
     controls.grounded = false;
-    transform.velocity.y += 1;
+    transform.velocity.y += GRAVITY * m_engine.deltaTime();
 }
 
 void GameScene::sPlayerController(const std::shared_ptr<Entity>& player) const {
@@ -102,13 +102,13 @@ void GameScene::sMove(const EntityList& entities) {
     for (auto& e : entities){
         if (e->hasComponent<CTransform>()){
             auto& transform = e->getComponent<CTransform>();
-            transform.position += transform.velocity;
+            transform.position += transform.velocity * m_engine.deltaTime();
         }
     }
 }
 
 void GameScene::sSceneTime(){
-    m_obstacleSpawnTimer += m_engine.deltaTime;
+    m_obstacleSpawnTimer += m_engine.deltaTime();
 }
 
 void GameScene::sObstacleSpawner(){
@@ -121,7 +121,7 @@ void GameScene::sObstacleSpawner(){
     const float randomY = range(gen);
     
     const auto e = m_entityManager->addEntity({"obstacle", "dynamic"});
-    e->addComponent<CTransform>(Vector2(1420, randomY), Vector2(-10, 0));
+    e->addComponent<CTransform>(Vector2(1420, randomY), Vector2(-100.0f, 0));
     e->addComponent<CSprite>(m_engine.assets->getTexture("obstacle"));
     e->addComponent<CBBox>(64, 64);
 }
